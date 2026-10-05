@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/* ---------- Theme tokens (consumed by Tailwind via @theme inline) ---------- */
+@theme inline {
+  --color-ground: var(--fahiq-ground);
+  --color-surface: var(--fahiq-surface);
+  --color-surface-sunken: var(--fahiq-surface-sunken);
+  --color-ink: var(--fahiq-ink);
+  --color-ink-muted: var(--fahiq-ink-muted);
+  --color-ink-faint: var(--fahiq-ink-faint);
+  --color-rule: var(--fahiq-rule);
+  --color-rule-strong: var(--fahiq-rule-strong);
+  --color-accent: var(--fahiq-accent);
+  --color-accent-ink: var(--fahiq-accent-ink);
+  --color-accent-soft: var(--fahiq-accent-soft);
+  --color-gold: var(--fahiq-gold);
+  --color-gold-soft: var(--fahiq-gold-soft);
+  --color-ok: var(--fahiq-ok);
+  --color-info: var(--fahiq-info);
+  --color-warn: var(--fahiq-warn);
+  --color-danger: var(--fahiq-danger);
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ---------- Light (default) ---------- */
+:root {
+  --fahiq-ground: #f4f6f2;
+  --fahiq-surface: #ffffff;
+  --fahiq-surface-sunken: #eaece6;
+  --fahiq-ink: #17211d;
+  --fahiq-ink-muted: #566058;
+  --fahiq-ink-faint: #8b948c;
+  --fahiq-rule: #dcded7;
+  --fahiq-rule-strong: #c3c7bd;
+  --fahiq-accent: #0f5c4d;
+  --fahiq-accent-ink: #0b4437;
+  --fahiq-accent-soft: #e0efe8;
+  --fahiq-gold: #8a6a17;
+  --fahiq-gold-soft: #f2ead4;
+  --fahiq-ok: #2f8f5b;
+  --fahiq-info: #2b6cb0;
+  --fahiq-warn: #a9781c;
+  --fahiq-danger: #bc4330;
+  color-scheme: light;
+}
+
+/* ---------- Dark via OS preference, unless an explicit light choice ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fahiq-ground: #0f1512;
+    --fahiq-surface: #171f1b;
+    --fahiq-surface-sunken: #121815;
+    --fahiq-ink: #e7ece7;
+    --fahiq-ink-muted: #9ba49c;
+    --fahiq-ink-faint: #6b756d;
+    --fahiq-rule: #29322d;
+    --fahiq-rule-strong: #3a453f;
+    --fahiq-accent: #54c3a9;
+    --fahiq-accent-ink: #9fe0d0;
+    --fahiq-accent-soft: #16261f;
+    --fahiq-gold: #cfab5e;
+    --fahiq-gold-soft: #241f13;
+    --fahiq-ok: #5cc98a;
+    --fahiq-info: #6ba9e0;
+    --fahiq-warn: #e0b061;
+    --fahiq-danger: #e88a78;
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Dark via explicit toggle ---------- */
+:root[data-theme="dark"] {
+  --fahiq-ground: #0f1512;
+  --fahiq-surface: #171f1b;
+  --fahiq-surface-sunken: #121815;
+  --fahiq-ink: #e7ece7;
+  --fahiq-ink-muted: #9ba49c;
+  --fahiq-ink-faint: #6b756d;
+  --fahiq-rule: #29322d;
+  --fahiq-rule-strong: #3a453f;
+  --fahiq-accent: #54c3a9;
+  --fahiq-accent-ink: #9fe0d0;
+  --fahiq-accent-soft: #16261f;
+  --fahiq-gold: #cfab5e;
+  --fahiq-gold-soft: #241f13;
+  --fahiq-ok: #5cc98a;
+  --fahiq-info: #6ba9e0;
+  --fahiq-warn: #e0b061;
+  --fahiq-danger: #e88a78;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol {
+  margin: 0;
+  padding: 0;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-ink);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shared form-field styling for modal inputs/selects/textareas */
+.field {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-rule);
+  background: var(--color-surface-sunken);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-ink);
+}
+.field::placeholder {
+  color: var(--color-ink-faint);
+}
+.field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}

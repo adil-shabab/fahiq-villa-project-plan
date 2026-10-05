@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<title>Fahiq Platform Blueprint</title>
+<style>
+  /* ---------- Tokens: light (bare :root) ---------- */
+  :root {
+    --ground: #f4f6f2;
+    --surface: #ffffff;
+    --surface-sunken: #eaece6;
+    --ink: #17211d;
+    --ink-muted: #566058;
+    --ink-faint: #8b948c;
+    --rule: #dcded7;
+    --rule-strong: #c3c7bd;
+    --accent: #0f5c4d;
+    --accent-ink: #0b4437;
+    --accent-soft: #e0efe8;
+    --gold: #8a6a17;
+    --gold-soft: #f2ead4;
+    --ok: #2f8f5b;
+    --info: #2b6cb0;
+    --warn: #a9781c;
+    --danger: #bc4330;
+    --shadow: 0 1px 2px rgba(23,33,29,.05), 0 14px 34px -18px rgba(23,33,29,.16);
+    --font-display: 'Spectral', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  /* ---------- Tokens: dark via OS, unless explicit light ---------- */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0f1512;
+      --surface: #171f1b;
+      --surface-sunken: #121815;
+      --ink: #e7ece7;
+      --ink-muted: #9ba49c;
+      --ink-faint: #6b756d;
+      --rule: #29322d;
+      --rule-strong: #3a453f;
+      --accent: #54c3a9;
+      --accent-ink: #9fe0d0;
+      --accent-soft: #16261f;
+      --gold: #cfab5e;
+      --gold-soft: #241f13;
+      --ok: #5cc98a;
+      --info: #6ba9e0;
+      --warn: #e0b061;
+      --danger: #e88a78;
+      --shadow: 0 1px 2px rgba(0,0,0,.35), 0 16px 40px -20px rgba(0,0,0,.6);
+    }
+  }
+  /* ---------- Tokens: dark via explicit toggle ---------- */
+  :root[data-theme="dark"] {
+    --ground: #0f1512;
+    --surface: #171f1b;
+    --surface-sunken: #121815;
+    --ink: #e7ece7;
+    --ink-muted: #9ba49c;
+    --ink-faint: #6b756d;
+    --rule: #29322d;
+    --rule-strong: #3a453f;
+    --accent: #54c3a9;
+    --accent-ink: #9fe0d0;
+    --accent-soft: #16261f;
+    --gold: #cfab5e;
+    --gold-soft: #241f13;
+    --ok: #5cc98a;
+    --info: #6ba9e0;
+    --warn: #e0b061;
+    --danger: #e88a78;
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 16px 40px -20px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 1.5rem; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+  a:hover { color: var(--accent-ink); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: .85em;
+    background: var(--surface-sunken);
+    padding: .1em .35em;
+    border-radius: 4px;
+    border: 1px solid var(--rule);
+  }
+
+  /* ---------- Shell ---------- */
+  .shell { display: grid; grid-template-columns: 292px minmax(0, 1fr); max-width: 1340px; margin: 0 auto; }
+
+  .sidebar {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow-y: auto;
+    padding: 2rem 1.4rem 2.5rem;
+    border-right: 1px solid var(--rule);
+    background: var(--surface);
+  }
+  .brand { font-family: var(--font-display); font-weight: 700; font-size: 1.4rem; letter-spacing: -.01em; }
+  .brand .dot { color: var(--accent); }
+  .side-tag { font-size: .78rem; color: var(--ink-muted); margin: .3rem 0 1.1rem; line-height: 1.45; }
+  .side-controls { display: flex; gap: .4rem; margin-bottom: 1.4rem; }
+  .btn {
+    font-family: var(--font-mono); font-size: .68rem; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--ink-muted);
+    background: var(--surface-sunken); border: 1px solid var(--rule);
+    border-radius: 6px; padding: .4rem .6rem; cursor: pointer;
+  }
+  .btn:hover { color: var(--ink); border-color: var(--rule-strong); }
+
+  nav.toc { display: flex; flex-direction: column; gap: .05rem; }
+  nav.toc a {
+    display: grid; grid-template-columns: 1.6rem 1fr; gap: .5rem; align-items: baseline;
+    padding: .42rem .5rem; border-radius: 6px;
+    color: var(--ink-muted); font-size: .875rem; text-decoration: none;
+    border-left: 2px solid transparent;
+  }
+  nav.toc a .n { font-family: var(--font-mono); font-size: .68rem; color: var(--ink-faint); }
+  nav.toc a:hover { background: var(--surface-sunken); color: var(--ink); }
+  nav.toc a.is-active { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); }
+  nav.toc a.is-active .n { color: var(--accent); }
+  .toc-foot { margin-top: 1.4rem; padding-top: 1.1rem; border-top: 1px solid var(--rule); font-size: .76rem; color: var(--ink-faint); line-height: 1.5; }
+
+  /* ---------- Main ---------- */
+  .main { min-width: 0; padding: 2.6rem clamp(1.25rem, 4vw, 4.25rem) 6rem; }
+
+  .masthead { margin-bottom: 1rem; }
+  .eyebrow { font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .16em; color: var(--gold); }
+  .masthead h1 {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(2.3rem, 6vw, 3.5rem); line-height: 1.04;
+    letter-spacing: -.02em; margin: .5rem 0 .5rem; text-wrap: balance;
+  }
+  .masthead .lede { font-size: 1.12rem; color: var(--ink-muted); max-width: 62ch; }
+
+  .meta-strip { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.6rem; }
+  .meta-item {
+    border: 1px solid var(--rule); border-radius: 7px; background: var(--surface);
+    padding: .45rem .7rem; font-size: .8rem; line-height: 1.3;
+  }
+  .meta-item b { display: block; font-family: var(--font-mono); font-size: .64rem; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-faint); font-weight: 500; margin-bottom: .12rem; }
+
+  section.doc-section { scroll-margin-top: 1.5rem; }
+  .sec-head {
+    display: flex; align-items: baseline; gap: .85rem;
+    margin: 0 0 1.3rem; padding-top: 3.4rem; border-top: 1px solid var(--rule);
+  }
+  .doc-section:first-of-type .sec-head { border-top: 0; padding-top: 2.4rem; }
+  .sec-head .sec-num { font-family: var(--font-mono); font-size: .8rem; font-weight: 600; color: var(--gold); letter-spacing: .08em; }
+  .sec-head h2 {
+    font-family: var(--font-display); font-weight: 600;
+    font-size: clamp(1.5rem, 3.2vw, 2rem); margin: 0; letter-spacing: -.01em; text-wrap: balance;
+  }
+
+  .main p, .main > section > ul, .main > section > ol { max-width: 74ch; }
+  .doc-section h3 { font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; margin: 2.3rem 0 .5rem; letter-spacing: -.005em; }
+  .doc-section h4 { font-family: var(--font-body); font-weight: 600; font-size: .98rem; margin: 1.6rem 0 .4rem; }
+  .doc-section ul, .doc-section ol { padding-left: 1.2rem; }
+  .doc-section li { margin: .28rem 0; }
+  .lead-note { color: var(--ink-muted); }
+
+  /* chips */
+  .chip {
+    display: inline-block; font-family: var(--font-mono); font-size: .66rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: .07em; padding: .16em .5em; border-radius: 4px;
+    border: 1px solid var(--rule-strong); color: var(--ink-muted); white-space: nowrap;
+  }
+  .chip.p1 { background: var(--accent); border-color: var(--accent); color: #fff; }
+  :root[data-theme="dark"] .chip.p1, :root:not([data-theme="light"]) .chip.p1 { color: #08120e; }
+  .chip.p2 { background: var(--accent-soft); border-color: transparent; color: var(--accent-ink); }
+  .chip.p3 { background: var(--gold-soft); border-color: transparent; color: var(--gold); }
+  .chip.p4 { background: transparent; }
+  .chip.ok { color: var(--ok); border-color: var(--ok); }
+  .chip.info { color: var(--info); border-color: var(--info); }
+  .chip.warn { color: var(--warn); border-color: var(--warn); }
+  .chip.danger { color: var(--danger); border-color: var(--danger); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 1rem 0 0; font-size: .8rem; color: var(--ink-muted); }
+
+  /* tables */
+  .scroll { overflow-x: auto; margin: 1.3rem 0; border: 1px solid var(--rule); border-radius: 9px; background: var(--surface); }
+  table.tbl { border-collapse: collapse; width: 100%; font-size: .88rem; }
+  .tbl th {
+    text-align: left; font-family: var(--font-mono); font-size: .68rem;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--ink-muted);
+    background: var(--surface-sunken); padding: .68rem .85rem; border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  .tbl td { padding: .68rem .85rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .tbl tbody tr:last-child td, .tbl tr:last-child td { border-bottom: 0; }
+  .tbl td code { background: transparent; border: 0; padding: 0; color: var(--accent-ink); }
+  .tbl .num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .tbl .center { text-align: center; }
+
+  /* code / diagrams / trees */
+  pre.code {
+    font-family: var(--font-mono); font-size: .8rem; line-height: 1.6;
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 9px;
+    padding: 1.1rem 1.2rem; overflow-x: auto; white-space: pre; margin: 1.3rem 0;
+    color: var(--ink);
+  }
+  pre.code .c { color: var(--ink-faint); }
+  pre.code .k { color: var(--accent-ink); }
+
+  /* steps */
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 1.3rem 0; display: flex; flex-direction: column; gap: .85rem; }
+  ol.steps > li {
+    counter-increment: s; position: relative; padding-left: 2.7rem; max-width: 74ch;
+  }
+  ol.steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    position: absolute; left: 0; top: .06em;
+    font-family: var(--font-mono); font-weight: 600; color: var(--gold); font-size: .78rem;
+  }
+  ol.steps > li > b { font-weight: 600; }
+  ol.steps > li code { white-space: normal; }
+
+  /* pipeline */
+  .pipeline { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.4rem 0; }
+  .pipeline .stage {
+    flex: 1 1 8.5rem; min-width: 8.5rem; border: 1px solid var(--rule); border-radius: 9px;
+    padding: .7rem .8rem; background: var(--surface);
+  }
+  .pipeline .stage .n { font-family: var(--font-mono); font-size: .64rem; color: var(--gold); letter-spacing: .06em; }
+  .pipeline .stage .t { font-weight: 600; font-size: .9rem; margin-top: .1rem; }
+  .pipeline .stage .d { font-size: .78rem; color: var(--ink-muted); margin-top: .15rem; }
+
+  /* cards */
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); margin: 1.3rem 0; }
+  .card { border: 1px solid var(--rule); border-radius: 10px; padding: 1.05rem 1.15rem; background: var(--surface); }
+  .card h4 { margin: 0 0 .3rem; font-size: .92rem; }
+  .card p { margin: 0; font-size: .84rem; color: var(--ink-muted); }
+  .card .role { font-family: var(--font-mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .07em; color: var(--gold); }
+
+  /* two-column lists */
+  .cols2 { columns: 2; column-gap: 2.4rem; margin: 1rem 0; max-width: 74ch; }
+  .cols2 li { break-inside: avoid; }
+  @media (max-width: 620px) { .cols2 { columns: 1; } }
+
+  /* callout */
+  .callout {
+    border: 1px solid var(--rule-strong); border-left: 3px solid var(--gold);
+    border-radius: 7px; background: var(--gold-soft); padding: .95rem 1.15rem;
+    margin: 1.4rem 0; font-size: .9rem; max-width: 76ch;
+  }
+  .callout b { color: var(--ink); }
+
+  /* roadmap */
+  .phase { border: 1px solid var(--rule); border-radius: 11px; padding: 1.15rem 1.3rem; margin: 1rem 0; background: var(--surface); box-shadow: var(--shadow); }
+  .phase-head { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; margin-bottom: .55rem; }
+  .phase-head .p { font-family: var(--font-mono); font-weight: 600; color: var(--accent); font-size: .9rem; }
+  .phase-head .goal { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+  .phase-head .dur { margin-left: auto; font-family: var(--font-mono); font-size: .72rem; color: var(--ink-faint); }
+  .phase ul { margin: .4rem 0 0; padding-left: 1.15rem; font-size: .88rem; }
+
+  /* mobile nav */
+  .nav-toggle {
+    display: none; position: fixed; top: .85rem; left: .85rem; z-index: 60;
+    font-family: var(--font-mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--rule-strong);
+    border-radius: 7px; padding: .5rem .7rem; cursor: pointer; box-shadow: var(--shadow);
+  }
+  .scrim { display: none; position: fixed; inset: 0; background: rgba(10,14,12,.45); z-index: 40; }
+
+  @media (max-width: 1000px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed; inset: 0 auto 0 0; width: 300px; z-index: 50;
+      transform: translateX(-100%); transition: transform .24s ease;
+    }
+    body.nav-open .sidebar { transform: none; }
+    body.nav-open .scrim { display: block; }
+    .nav-toggle { display: inline-flex; }
+    .main { padding-top: 4rem; }
+  }
+  @media (max-width: 520px) {
+    .meta-strip { gap: .4rem; }
+    .sec-head { padding-top: 2.6rem; }
+  }
+</style>
+</head>
+<body>
+<button class="nav-toggle" id="navBtn" aria-label="Toggle contents">Contents</button>
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">Fahiq<span class="dot">.</span></div>
+    <p class="side-tag">Rental &amp; PG management platform — full requirements, workflow &amp; architecture</p>
+    <div class="side-controls">
+      <button class="btn" id="themeBtn" type="button">Theme: Auto</button>
+    </div>
+    <nav class="toc" aria-label="Document sections">
+      <a href="#overview"><span class="n">01</span><span>Overview</span></a>
+      <a href="#workflow"><span class="n">02</span><span>Product workflow</span></a>
+      <a href="#functional"><span class="n">03</span><span>Functional requirements</span></a>
+      <a href="#nonfunctional"><span class="n">04</span><span>Non-functional requirements</span></a>
+      <a href="#roles"><span class="n">05</span><span>Roles &amp; permissions</span></a>
+      <a href="#architecture"><span class="n">06</span><span>System architecture</span></a>
+      <a href="#datamodel"><span class="n">07</span><span>Data model</span></a>
+      <a href="#whatsapp"><span class="n">08</span><span>WhatsApp automation</span></a>
+      <a href="#billing"><span class="n">09</span><span>Billing &amp; payments</span></a>
+      <a href="#stack"><span class="n">10</span><span>Tech stack</span></a>
+      <a href="#structure"><span class="n">11</span><span>Project structure</span></a>
+      <a href="#roadmap"><span class="n">12</span><span>Roadmap</span></a>
+      <a href="#setup"><span class="n">13</span><span>Initial setup</span></a>
+    </nav>
+    <p class="toc-foot">Companion to the Markdown specification in <code>/docs/01</code>–<code>15</code>. Single-owner deployment · India · INR.</p>
+  </aside>
+
+  <main class="main">
+    <header class="masthead">
+      <div class="eyebrow">Platform blueprint · v0 · spec / pre-build</div>
+      <h1>Fahiq — one system for every room, tenant and rupee</h1>
+      <p class="lede">A property owner running several buildings and PGs lists rooms with photos, rent and amenities on a public site; prospects enquire and get onboarded digitally; the platform then generates every monthly bill and chases it over WhatsApp with a UPI payment link that reconciles itself.</p>
+      <div class="meta-strip">
+        <div class="meta-item"><b>Scale</b>Single owner · multi-property</div>
+        <div class="meta-item"><b>Backend</b>Django · DRF · Celery · Postgres</div>
+        <div class="meta-item"><b>Frontend</b>React (Vite) + Next.js site</div>
+        <div class="meta-item"><b>WhatsApp</b>BSP adapter (AiSensy / Gupshup / Twilio / Interakt)</div>
+        <div class="meta-item"><b>Payments</b>Razorpay · UPI · Autopay · Payouts</div>
+        <div class="meta-item"><b>Region</b>India · INR · Asia/Kolkata</div>
+      </div>
+    </header>
+
+    <!-- 01 OVERVIEW -->
+    <section class="doc-section" id="overview">
+      <div class="sec-head"><span class="sec-num">01</span><h2>Overview</h2></div>
+      <p>Today the business runs on WhatsApp chats, a notebook and manual UPI follow-ups. There is no single view of vacancies across properties, utility splits are disputed, tenant records and agreements live nowhere, and collections slip because chasing is manual. Fahiq replaces that with one operating system for the entire tenant lifecycle: <b>list → market → enquire → onboard → bill → collect → maintain → renew → move-out</b> — with routine communication fully automated over WhatsApp.</p>
+
+      <h3>Goals</h3>
+      <ul>
+        <li><b>Zero-effort billing cycle</b> — invoices auto-generate on the due day; reminders and payment links go out on a schedule; payments auto-reconcile.</li>
+        <li><b>One source of truth</b> for properties, rooms, tenants, agreements, documents and money.</li>
+        <li><b>Public storefront</b> so vacancies fill without depending only on brokers.</li>
+        <li><b>Paperless onboarding</b> — application, KYC, agreement e-sign, inventory, opening meter readings.</li>
+        <li><b>Owner clarity</b> — occupancy %, expected vs collected rent, overdue aging, per-property P&amp;L.</li>
+      </ul>
+
+      <h3>Out of scope for v1</h3>
+      <ul class="lead-note">
+        <li>Multi-owner SaaS with self-serve signup and per-owner billing — deferred; the data model is namespaced by <code>organization</code> to allow it later.</li>
+        <li>Full accounting-suite replacement — Fahiq integrates with / exports to Tally &amp; Zoho instead.</li>
+        <li>Short-stay / nightly booking engine — later phase.</li>
+      </ul>
+
+      <h3>Who uses it</h3>
+      <div class="grid">
+        <div class="card"><div class="role">Owner / Admin</div><h4>Runs the business</h4><p>Occupancy, cash position, per-property P&amp;L, approvals — sees everything.</p></div>
+        <div class="card"><div class="role">Property manager</div><h4>Day-to-day ops</h4><p>Leads, onboarding, move-outs, tickets, meter readings for assigned properties.</p></div>
+        <div class="card"><div class="role">Accountant</div><h4>Money in / out</h4><p>Invoicing, reconciliation, expenses, refunds, payouts, reports.</p></div>
+        <div class="card"><div class="role">Field / maintenance</div><h4>On the ground</h4><p>Assigned tickets, meter-reading capture, inventory photos.</p></div>
+        <div class="card"><div class="role">Prospective tenant</div><h4>Browsing the site</h4><p>Find a room in budget and area, see photos &amp; rules, enquire, book.</p></div>
+        <div class="card"><div class="role">Tenant (onboarded)</div><h4>Living in a unit</h4><p>See dues, pay, download receipts &amp; agreement, raise complaints, read notices.</p></div>
+      </div>
+
+      <h3>Success metrics</h3>
+      <ul>
+        <li><b>Collection efficiency</b> (collected ÷ billed) ≥ 95% by day 10 of the month.</li>
+        <li><b>Average days-to-collect</b> after the due date — trending down.</li>
+        <li><b>Average vacancy days</b> per unit turnover — trending down.</li>
+        <li><b>% invoices sent automatically</b> (no manual touch) — target 100%.</li>
+        <li><b>% onboardings fully digital</b> (agreement e-signed, KYC uploaded) — target ≥ 90%.</li>
+        <li><b>Manual hours / month</b> on billing &amp; reminders — target near zero.</li>
+      </ul>
+    </section>
+
+    <!-- 02 WORKFLOW -->
+    <section class="doc-section" id="workflow">
+      <div class="sec-head"><span class="sec-num">02</span><h2>Product workflow</h2></div>
+      <p>The tenant lifecycle, end to end. Every stage below is a real screen or automated job in the platform.</p>
+
+      <div class="pipeline">
+        <div class="stage"><div class="n">STAGE 1</div><div class="t">List</div><div class="d">Admin adds a property &amp; units — type, rent, deposit, amenities, photos, status.</div></div>
+        <div class="stage"><div class="n">STAGE 2</div><div class="t">Market</div><div class="d">Available units publish to the public website with search &amp; filters.</div></div>
+        <div class="stage"><div class="n">STAGE 3</div><div class="t">Enquire</div><div class="d">Visitor submits an enquiry → lead created → instant WhatsApp acknowledgement.</div></div>
+        <div class="stage"><div class="n">STAGE 4</div><div class="t">Visit</div><div class="d">Manager schedules a viewing; prospect &amp; staff get reminders.</div></div>
+        <div class="stage"><div class="n">STAGE 5</div><div class="t">Onboard</div><div class="d">Application, KYC, agreement e-sign, move-in inventory, opening readings.</div></div>
+        <div class="stage"><div class="n">STAGE 6</div><div class="t">Bill</div><div class="d">On the due day the billing run creates the invoice and sends it on WhatsApp.</div></div>
+        <div class="stage"><div class="n">STAGE 7</div><div class="t">Collect</div><div class="d">Reminder cadence + payment link; webhook reconciles; receipt auto-sent.</div></div>
+        <div class="stage"><div class="n">STAGE 8</div><div class="t">Maintain</div><div class="d">Tenant raises tickets; assigned to vendors; status pushed back on WhatsApp.</div></div>
+        <div class="stage"><div class="n">STAGE 9</div><div class="t">Renew / exit</div><div class="d">Expiry reminders &amp; renewal, or notice → settlement → deposit refund → unit re-listed.</div></div>
+      </div>
+
+      <h3>Flow A — Enquiry to conversion</h3>
+      <ol class="steps">
+        <li><b>Enquiry.</b> Visitor submits the form on a listing (<code>POST /public/enquiries</code>). A <b>Lead</b> is created with <code>source = website_enquiry</code>.</li>
+        <li><b>Acknowledge.</b> The <code>enquiry_ack</code> WhatsApp template fires immediately; a "new lead" alert reaches the assigned manager.</li>
+        <li><b>Qualify.</b> Manager works the pipeline: <code>New → Contacted → Visit scheduled → Visited → Negotiating → Won / Lost</code>, logging calls and notes.</li>
+        <li><b>Visit.</b> A slot is booked; <code>visit_confirmed</code> now and <code>visit_reminder</code> two hours before, to prospect and staff.</li>
+        <li><b>Convert.</b> One click turns the won lead into an onboarding, carrying name, phone and the unit of interest.</li>
+      </ol>
+
+      <h3>Flow B — Digital onboarding</h3>
+      <ol class="steps">
+        <li><b>Application.</b> Personal details, occupation, co-occupants, emergency contact, vehicle — captured in a resumable wizard (or self-filled by the prospect via a link).</li>
+        <li><b>KYC.</b> Aadhaar / PAN / DL / passport + photo uploaded; each document marked <code>pending → verified → rejected</code> with a note. ID numbers stored masked and encrypted.</li>
+        <li><b>Terms.</b> Structured lease terms: start &amp; end date, rent, deposit, lock-in, notice period, escalation %, due day, utilities &amp; parking included.</li>
+        <li><b>Agreement.</b> Generated from a template with merge fields → e-signed (Digio / Leegality / Aadhaar eSign) or a signed scan uploaded; stamp / e-stamp details recorded.</li>
+        <li><b>Inventory &amp; meters.</b> Move-in inspection with condition photos; opening electricity / water / gas readings with meter photos.</li>
+        <li><b>Activate.</b> Unit / bed assigned, status flips to <code>Occupied</code>, the rent schedule starts, and the <code>onboarding_welcome</code> WhatsApp goes out with house rules, Wi-Fi password, manager contact and payment instructions.</li>
+      </ol>
+
+      <h3>Flow C — Monthly billing run <span class="chip p1">automated</span></h3>
+      <p class="lead-note">Celery Beat job <code>billing.run_daily_invoicing</code>, 06:00 IST daily. Idempotent per <code>(tenancy, period)</code>, guarded by a Redis lock.</p>
+      <ol class="steps">
+        <li><b>Select.</b> Every active tenancy whose <code>due_day</code> is today (optionally minus lead days).</li>
+        <li><b>Rent line.</b> Current post-escalation rent; prorated if the tenancy started mid-period.</li>
+        <li><b>Recurring charges.</b> One line each — Wi-Fi, parking, maintenance, mess — prorated where applicable.</li>
+        <li><b>Electricity.</b> Per unit mode: <i>sub-meter</i> = <code>(current − previous) × rate + fixed</code> from the period's reading; <i>fixed</i> = flat amount; <i>shared</i> = parent bill split equally / by headcount / by ratio. No reading → electricity is skipped, the invoice is flagged <code>electricity_pending</code> and staff are alerted.</li>
+        <li><b>Water.</b> Fixed, per head, or metered — analogous.</li>
+        <li><b>Tax.</b> If GST is enabled, apply the rate to taxable lines and use the tax-invoice format.</li>
+        <li><b>Totals &amp; number.</b> Compute subtotal, discount, tax, total; assign the next gap-free invoice number in the financial-year series.</li>
+        <li><b>Render &amp; post.</b> Branded PDF generated; a rent-account ledger entry written; status set to <code>issued</code>; the <code>invoice_issued</code> (or itemized) WhatsApp template queued with the PDF and payment link.</li>
+      </ol>
+
+      <h3>Flow D — Collection &amp; dunning <span class="chip p1">automated</span></h3>
+      <p class="lead-note">Job <code>collections.run_reminders</code>, 08:00 IST daily. Stops automatically the moment an invoice balance hits zero.</p>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Offset</th><th>Template</th><th>Tone</th><th>Channel</th></tr></thead>
+          <tbody>
+            <tr><td class="num">T−3</td><td><code>rent_reminder_pre</code></td><td>Friendly heads-up</td><td>WhatsApp</td></tr>
+            <tr><td class="num">T0</td><td><code>rent_due_today</code></td><td>Neutral</td><td>WhatsApp</td></tr>
+            <tr><td class="num">T+1</td><td><code>rent_overdue_1</code></td><td>Reminder</td><td>WhatsApp</td></tr>
+            <tr><td class="num">T+3</td><td><code>rent_overdue_2</code></td><td>Firm</td><td>WhatsApp</td></tr>
+            <tr><td class="num">T+7</td><td><code>rent_overdue_3</code></td><td>Firm + late-fee warning</td><td>WhatsApp</td></tr>
+            <tr><td class="num">T+15</td><td><code>rent_overdue_final</code></td><td>Escalation + manager alert</td><td>WhatsApp + SMS</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The engine skips a send when the tenant has opted out, when the clock is inside quiet hours (queued for morning), or when a <b>promise-to-pay</b> date is still in the future. Every attempt is written to a <code>ReminderLog</code> so a given stage is never sent twice.</p>
+
+      <h3>Flow E — Payment &amp; reconciliation <span class="chip p1">automated</span></h3>
+      <ol class="steps">
+        <li><b>Link.</b> <code>POST /payments/link</code> creates a Razorpay Payment Link for the invoice balance; the URL is what the reminder templates carry.</li>
+        <li><b>Pay.</b> Tenant pays by UPI, card, netbanking or wallet — or an approved UPI Autopay mandate auto-debits on the due day.</li>
+        <li><b>Webhook.</b> <code>payment_link.paid</code> / <code>payment.captured</code> arrives; signature verified; deduped on the Razorpay event id.</li>
+        <li><b>Allocate.</b> A <code>Payment</code> + allocations are written (oldest invoice first if overpaid); invoice balance &amp; status update; a credit ledger entry is written.</li>
+        <li><b>Receipt.</b> A branded receipt PDF is generated, the <code>payment_received</code> template is sent with it attached, and any pending reminders for that invoice are cancelled.</li>
+      </ol>
+
+      <h3>Flow F — Maintenance ticket</h3>
+      <ol class="steps">
+        <li>Tenant raises a ticket from the portal or by texting <code>TICKET &lt;text&gt;</code> on WhatsApp — category, description, photos, priority.</li>
+        <li>Workflow: <code>Open → Assigned → In progress → On hold → Resolved → Closed</code>, with an SLA timer per priority and a tenant-visible thread separate from internal notes.</li>
+        <li>Assigned to staff or a vendor; cost recorded; if it is tenant-caused damage, a charge is auto-added to the next invoice.</li>
+        <li>Status changes push a WhatsApp update; on resolution the tenant rates the fix.</li>
+      </ol>
+
+      <h3>Flow G — Renewal &amp; move-out</h3>
+      <ol class="steps">
+        <li><b>Renewal.</b> Reminders at 60 / 30 / 7 days before agreement expiry; capture new terms; regenerate &amp; re-sign; the rent schedule extends.</li>
+        <li><b>Notice.</b> Tenant (portal / WhatsApp) or owner records notice; the system computes the last day from the notice period and lock-in; <code>notice_ack</code> is sent.</li>
+        <li><b>Settlement.</b> Inventory re-check with damage deductions, final meter readings &amp; utility bill, unpaid dues — the deposit refund is computed and a settlement statement generated.</li>
+        <li><b>Close.</b> On tenant acknowledgement the refund pays out (Razorpay Payout or manual); the unit returns to <code>Available</code> (or <code>Under maintenance</code> with a turnover task) and re-lists.</li>
+      </ol>
+    </section>
+
+    <!-- 03 FUNCTIONAL -->
+    <section class="doc-section" id="functional">
+      <div class="sec-head"><span class="sec-num">03</span><h2>Functional requirements</h2></div>
+      <p>Seventeen modules. Every capability is tagged with the phase it lands in.</p>
+      <div class="legend">
+        <span class="chip p1">P1 MVP</span><span class="chip p2">P2 fast-follow</span><span class="chip p3">P3 growth</span><span class="chip p4">P4 advanced</span>
+      </div>
+
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Module</th><th>Key capabilities</th><th>Phases</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>A · Property &amp; room management</b></td>
+              <td>Multiple properties with geo-location &amp; photos; Property → Block → Floor → Unit → Bed hierarchy; unit types 1RK / Studio / 1–4BHK+ / PG bed (single–dormitory) / commercial; furnishing, area, commercials (rent, deposit, maintenance, lock-in, notice, escalation, due day); photo &amp; video galleries, floor plans, 360° tour; property- and unit-level amenity checklist (~40 items); status <code>available / booked / occupied / notice / maintenance / blocked</code> + available-from; tenant-type &amp; house rules; nearby landmarks; rent-revision history; CSV import &amp; bulk edit; clone unit.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>B · Public website</b></td>
+              <td>Landing + search with filters (locality, budget, type, furnishing, availability, amenities, tenant type, sharing); listing cards + detail page (gallery, rent breakdown, rules, map, nearby, similar); enquiry &amp; schedule-a-visit forms; WhatsApp click-to-chat; book-now token payment; shortlist; verified reviews; per-locality SEO pages, sitemap, JSON-LD; CMS-lite content; English / Hindi; PWA.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>C · Lead / enquiry CRM</b></td>
+              <td>Capture from website, WhatsApp, call, walk-in, broker, referral; pipeline stages with lost-reason; assignment, follow-up reminders, activity timeline; auto acknowledgement; visit scheduling with calendar; convert-to-onboarding; duplicate detection; source &amp; funnel reporting; cold-lead drip.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>D · Tenant onboarding</b></td>
+              <td>Digital application + co-occupants; KYC upload &amp; verification; rental-agreement generation + e-sign; police / tenant-verification form; structured lease terms; move-in inventory with photos; opening meter readings; unit / bed assignment + welcome message; guarantor &amp; co-tenant records; self-onboarding link.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>E · Tenancy / lease lifecycle</b></td>
+              <td>Active-tenancy register with full profile; automatic monthly rent schedule; anniversary rent escalation; renewal workflow + expiry reminders; notice-to-vacate with computed last day; move-out settlement; transfer between units; tenancy history; blacklist; corporate lease.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>F · Billing &amp; invoicing</b></td>
+              <td>Charge types (rent, deposit, electricity, water, maintenance, wifi, mess, housekeeping, parking, gas, late fee, damage, one-time, custom); per-tenancy recurring charges; electricity by sub-meter / fixed / shared split; water fixed / per-head / metered; automatic monthly batch + ad-hoc invoices; proration; auto late fees with cap; branded invoice PDF; credit notes / waivers with approval; partial payments &amp; allocation rules; tenant ledger &amp; statement; aging buckets; separate deposit ledger; gap-free numbering; GST tax invoice; TDS-on-rent note.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>G · Payments &amp; collections</b></td>
+              <td>Razorpay Payment Links per invoice; webhook auto-reconciliation; receipts; offline payment entry + approval; UPI Autopay / e-mandate; configurable reminder cadence with escalation; collection dashboard; promise-to-pay; deposit refund via Payout; owner payout tracking; convenience-fee pass-through; BBPS bill pay.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span> <span class="chip p4">P4</span></td>
+            </tr>
+            <tr>
+              <td><b>H · WhatsApp automation</b></td>
+              <td>BSP adapter with swappable provider; ~35 approved templates; variable merge; daily scheduler; two-way inbound with keyword auto-replies; broadcasts to segments; delivery tracking with SMS / email fallback; opt-out, quiet hours, per-message cost log; template-management UI; AI concierge.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span> <span class="chip p4">P4</span></td>
+            </tr>
+            <tr>
+              <td><b>I · Maintenance &amp; tickets</b></td>
+              <td>Tenant-raised tickets with photos &amp; priority; assignment to staff / vendors; SLA timers &amp; escalation; internal vs tenant-visible thread; vendor directory &amp; rate cards; recharge tenant-fault costs; preventive-maintenance schedules; asset / appliance register; common-area tickets; WhatsApp status updates &amp; ratings.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>J · Staff / team</b></td>
+              <td>Role-based staff accounts; property-scoped access; audit trail; task management &amp; checklists; field-staff check-in; internal notes &amp; mentions.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>K · Accounting &amp; finance</b></td>
+              <td>Auto income capture; categorized expenses with receipts, per property; per-property P&amp;L with yield; cash-flow statement; owner drawings; exports to Tally / Zoho; GST output report; e-invoicing; expense-bill OCR.</td>
+              <td><span class="chip p2">P2</span> <span class="chip p3">P3</span> <span class="chip p4">P4</span></td>
+            </tr>
+            <tr>
+              <td><b>L · Reports &amp; analytics</b></td>
+              <td>Rent roll; occupancy; collections; aging; upcoming vacancies; expiring agreements; utility-consumption trends; lead funnel &amp; source performance; vacancy days; churn / retention; maintenance cost; custom date ranges + PDF / Excel export; scheduled email reports.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>M · Tenant self-service portal</b></td>
+              <td>Phone-OTP login; dues &amp; one-tap pay; invoices, receipts, ledger / statement; agreement &amp; KYC status; raise / track tickets; submit meter reading; announcements feed; move-out request; profile edits; PG roommate &amp; mess info; refer-a-friend; contact manager.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>N · Notifications (multi-channel)</b></td>
+              <td>WhatsApp, email, SMS, in-app; per-event templates; per-user channel preference &amp; opt-out; staff alerts (new lead, payment, ticket, send failure, notice given, agreement expiring, missing meter reading, low occupancy); daily digest option.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span></td>
+            </tr>
+            <tr>
+              <td><b>O · Documents &amp; templates</b></td>
+              <td>Central document vault per tenant / unit / property; generated invoice, receipt &amp; ledger PDFs; merge-field templates (agreement, police verification, rent receipt, notice letter, settlement statement, NOC); template versioning; signed-URL access &amp; expiry tracking; watermarking.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>P · Configuration / settings</b></td>
+              <td>Business profile &amp; branding; master data (properties, amenities, charge types &amp; rates); billing policy (grace, late fee, numbering, financial year); electricity slabs &amp; water charges; integration credentials with test buttons; reminder-cadence editor; users / roles / property assignment; localization; public-site CMS; agreement clause library.</td>
+              <td><span class="chip p1">P1</span> <span class="chip p2">P2</span> <span class="chip p3">P3</span></td>
+            </tr>
+            <tr>
+              <td><b>Q · Advanced / future</b></td>
+              <td>React Native apps (tenant + field); smart locks &amp; visitor management; IoT smart-meter auto-read; Aadhaar / DigiLocker KYC; channel manager (NoBroker, MagicBricks, 99acres, Housing, OLX); dynamic pricing; mess &amp; laundry management; referral &amp; loyalty; AI (chatbot, default-risk scoring, ticket triage, OCR); renter's insurance; BBPS; short-stay mode; multi-owner SaaS.</td>
+              <td><span class="chip p4">P4</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 04 NON-FUNCTIONAL -->
+    <section class="doc-section" id="nonfunctional">
+      <div class="sec-head"><span class="sec-num">04</span><h2>Non-functional requirements</h2></div>
+
+      <h3>Security</h3>
+      <ul>
+        <li><b>Authentication.</b> Staff: email + password (Argon2), mandatory TOTP 2FA for Owner/Admin &amp; Accountant, lockout after 5 failed attempts. Tenant: phone + 6-digit OTP, 5-minute TTL, rate-limited, single-use. Short-lived access JWT (15 min) + rotating refresh token with reuse detection.</li>
+        <li><b>Authorization.</b> RBAC plus object-scoping by property, enforced at the queryset layer. Deny by default. Sensitive changes route through an approval workflow; waivers &amp; discounts are amount-limited per user.</li>
+        <li><b>Data protection.</b> TLS 1.2+ with HSTS; DB volume encryption; field-level encryption (Fernet / KMS) for integration credentials and KYC ID numbers; KYC files in a separate stricter bucket with 2–5 minute signed URLs. PII masked in logs and Sentry.</li>
+        <li><b>Payments.</b> Card / UPI data never touches our servers — Razorpay Checkout &amp; hosted links only; we hold tokens and references, keeping PCI scope at SAQ-A.</li>
+        <li><b>Webhooks.</b> Signature verified (Razorpay, BSP), idempotent processing, raw payload stored for replay, IP allowlist where offered.</li>
+        <li><b>Hardening.</b> CSRF on session routes, locked CORS, strict CSP on the public site, security headers, dependency &amp; secret scanning in CI, throttling on auth / OTP / enquiry, bot protection on public forms, upload type / size allowlist with image re-encoding and AV scan.</li>
+        <li><b>Audit.</b> Every money / status / agreement / KYC / permission change writes an immutable before→after log entry with actor, IP and time.</li>
+      </ul>
+
+      <h3>Compliance (India)</h3>
+      <ul>
+        <li><b>DPDP Act 2023</b> — explicit consent capture (WhatsApp opt-in, KYC purpose), consent records, purpose limitation, retention schedule, data-subject access / erasure handling, breach process, named grievance officer.</li>
+        <li><b>WhatsApp / Meta policy</b> — approved templates only for business-initiated messages, correct utility vs marketing categorization, opt-out strictly honoured.</li>
+        <li><b>GST</b> (if registered) — compliant tax-invoice format, sequential numbering, retention.</li>
+        <li><b>Retention defaults</b> — financial records 8 years; KYC per statutory need; message bodies 18 months (metadata longer); server logs 90 days.</li>
+      </ul>
+
+      <h3>Performance &amp; scalability</h3>
+      <ul>
+        <li>API p95 &lt; 300 ms for list / detail endpoints at target scale (≤ 2,000 units, ≤ 5,000 active tenancies, ≤ 50 staff).</li>
+        <li>Public listing pages: LCP &lt; 2.5 s on mid-tier 4G, INP &lt; 200 ms, CLS &lt; 0.1.</li>
+        <li>Pagination everywhere; no unbounded queries; <code>select_related</code> / <code>prefetch_related</code>; indexes on the hot paths.</li>
+        <li>Redis caching for public listing &amp; facet queries, dashboard KPI aggregates and report results; media on a CDN with content-hash URLs and AVIF / WebP.</li>
+        <li>Billing run is chunked, resumable and idempotent; a bad tenancy fails alone, never the batch. Separate Celery queues (<code>default</code>, <code>billing</code>, <code>messaging</code>, <code>pdf</code>, <code>exports</code>).</li>
+        <li>Stateless API containers scale horizontally; exports &amp; broadcasts are background jobs with progress.</li>
+      </ul>
+
+      <h3>Reliability &amp; availability</h3>
+      <ul>
+        <li>Target 99.5% monthly app availability; billing &amp; reminder jobs alert on a missed or late run ("last successful run" freshness monitor).</li>
+        <li>Daily Postgres snapshots + PITR (WAL), ≥ 14-day retention, quarterly restore drills — RPO ≤ 5 min with PITR, RTO ≤ 4 h.</li>
+        <li>All scheduled jobs idempotent and Redis-locked; safe to re-run.</li>
+        <li>Webhook processing at-least-once with dedupe, dead-letter queue, backoff and a manual replay tool.</li>
+        <li>Outbound sends retry then fall back WhatsApp → SMS → email; staff are alerted if a tenant is unreachable on every channel.</li>
+        <li>If the BSP or Razorpay is down, invoices still generate and queue, flushing when the provider recovers.</li>
+        <li>Zero-downtime deploys; backward-compatible migrations (expand → migrate → contract).</li>
+      </ul>
+
+      <h3>Data integrity</h3>
+      <ul>
+        <li>Invoices immutable after issue — the only permitted post-issue mutation is an audited late-fee line; other corrections are credit notes.</li>
+        <li>Ledgers append-only; balances derived and materialized, with a nightly reconciliation check that alerts on drift.</li>
+        <li>Gap-free invoice / receipt numbering via a DB sequence + unique constraint per financial year.</li>
+        <li>Soft-delete for anything with financial history; every money mutation inside a DB transaction; <code>Decimal</code> arithmetic with documented rounding.</li>
+      </ul>
+
+      <h3>Observability</h3>
+      <ul>
+        <li>Structured JSON logs with request / task / tenancy correlation ids; Sentry on API, workers and both frontends with PII scrubbing.</li>
+        <li>Business metrics: invoices generated, messages sent / delivered / failed, reminder queue depth, payments reconciled, reconciliation lag, webhook latency, Celery queue lengths, billing-run duration.</li>
+        <li>Paging alerts: billing run failed / late, webhook backlog, message failure rate, reconciliation drift, backup failed, error-rate spike.</li>
+        <li>External uptime monitoring on the public site, the API and job freshness.</li>
+      </ul>
+
+      <h3>Accessibility &amp; UX quality</h3>
+      <ul>
+        <li>WCAG 2.1 AA on the public site and tenant portal — semantic HTML, labelled controls, keyboard navigation, visible focus, AA contrast, alt text, reduced-motion support.</li>
+        <li>Responsive: site &amp; portal mobile-first; dashboard usable on tablet; field flows (meter reading, ticket update) usable on a phone.</li>
+        <li>Friendly error copy mapped from the RFC-7807 <code>detail</code>; empty states name the next action; destructive actions confirm with a reason.</li>
+        <li>Localization-ready — INR, Asia/Kolkata, <code>dd MMM yyyy</code>, English / Hindi.</li>
+      </ul>
+    </section>
+
+    <!-- 05 ROLES -->
+    <section class="doc-section" id="roles">
+      <div class="sec-head"><span class="sec-num">05</span><h2>Roles &amp; permissions</h2></div>
+      <p>Two populations: <b>staff users</b> in the dashboard (role-based, property-scoped) and <b>tenant users</b> in the portal (scoped to their own tenancy). Public visitors are anonymous.</p>
+
+      <div class="scroll">
+        <table class="tbl">
+          <thead>
+            <tr><th>Capability</th><th class="center">Owner</th><th class="center">Manager</th><th class="center">Accountant</th><th class="center">Field</th><th class="center">Front&nbsp;desk</th><th class="center">Read-only</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>See all properties</td><td class="center">✅</td><td class="center">assigned</td><td class="center">assigned/all</td><td class="center">assigned</td><td class="center">assigned</td><td class="center">assigned/all</td></tr>
+            <tr><td>Create / edit properties &amp; units</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Manage leads &amp; visits</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">✅</td><td class="center">view</td></tr>
+            <tr><td>Onboard a tenant / verify KYC</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">onboard</td><td class="center">—</td></tr>
+            <tr><td>Generate agreement &amp; trigger e-sign</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Edit tenancy terms</td><td class="center">✅</td><td class="center">approval</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Enter meter readings</td><td class="center">✅</td><td class="center">✅</td><td class="center">✅</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td></tr>
+            <tr><td>Generate invoices</td><td class="center">✅</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Discounts / credit notes / waivers</td><td class="center">✅</td><td class="center">≤ limit</td><td class="center">≤ limit</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Record / approve offline payments</td><td class="center">✅ / ✅</td><td class="center">record</td><td class="center">✅ / ✅</td><td class="center">—</td><td class="center">record</td><td class="center">—</td></tr>
+            <tr><td>Issue refunds / payouts</td><td class="center">✅</td><td class="center">—</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Edit reminder cadence / templates</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Send broadcasts</td><td class="center">✅</td><td class="center">own property</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Manage maintenance tickets</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">assigned</td><td class="center">create</td><td class="center">view</td></tr>
+            <tr><td>Record expenses</td><td class="center">✅</td><td class="center">✅</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>View financial reports &amp; P&amp;L</td><td class="center">✅</td><td class="center">own property</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">assigned/all</td></tr>
+            <tr><td>Manage users &amp; roles</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+            <tr><td>Edit integration credentials &amp; settings</td><td class="center">✅</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td><td class="center">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="lead-note"><b>approval</b> = the action creates a pending change-request the Admin approves. <b>≤ limit</b> = allowed up to a per-user rupee cap, above which it needs approval. Property scoping is filtered in the queryset, not just the view.</p>
+
+      <h3>Authentication by population</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Population</th><th>Method</th></tr></thead>
+          <tbody>
+            <tr><td>Staff</td><td>Email + password; mandatory TOTP 2FA for Owner/Admin &amp; Accountant; JWT session</td></tr>
+            <tr><td>Tenant</td><td>Phone + OTP (SMS, WhatsApp secondary); optional device PIN</td></tr>
+            <tr><td>Public visitor</td><td>None; optional email magic-link only to sync a shortlist</td></tr>
+            <tr><td>Service / webhooks</td><td>Signed webhook secrets; IP allowlist where supported</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Tenant portal scope</h3>
+      <p>A tenant only ever sees data where <code>tenancy.tenant == request.user.tenant</code> (or they are a listed co-tenant): their own invoices, receipts, ledger, agreement, KYC status, tickets and property announcements. They can pay their own invoices, raise / rate their own tickets, submit their own meter readings (if enabled), initiate a move-out, and edit contact fields — KYC edits go to a review queue. They cannot see other tenants, other units, staff notes or any financial totals beyond their own.</p>
+    </section>
+
+    <!-- 06 ARCHITECTURE -->
+    <section class="doc-section" id="architecture">
+      <div class="sec-head"><span class="sec-num">06</span><h2>System architecture</h2></div>
+      <p>A Django + DRF API with a Celery worker and Beat scheduler; PostgreSQL as the system of record; Redis for cache, locks and the Celery broker; S3 / R2 for media and generated PDFs. Three React frontends talk to the same API.</p>
+
+      <pre class="code">                         <span class="c">┌──────────────────────── Clients ────────────────────────┐</span>
+  Public visitor  ─────►   Public Website (Next.js · SSR/SSG for SEO)
+  Tenant          ─────►   Tenant Portal  (React + Vite SPA)
+  Staff / Owner   ─────►   Admin Dashboard (React + Vite SPA)
+                         <span class="c">└────────────────────────────┬───────────────────────────┘</span>
+                                                      │  HTTPS / JSON (REST, /api/v1)
+                                                      ▼
+                         <span class="k">┌──────────── Django + Django REST Framework ────────────┐</span>
+                         │  Auth · RBAC · domain services · serializers · OpenAPI │
+                         <span class="k">└──┬───────────────────┬────────────────────┬───────────┘</span>
+                            │                   │                    │
+                     ┌──────▼─────┐      ┌──────▼──────┐      ┌──────▼────────┐
+                     │ PostgreSQL │      │   Redis     │      │ Object storage│
+                     │ (records)  │      │ cache+broker│      │  S3 / R2      │
+                     └────────────┘      └──────┬──────┘      └───────────────┘
+                                                │
+                                    ┌───────────▼────────────┐
+                                    │  Celery workers        │
+                                    │  Celery Beat (cron)    │
+                                    │   billing · reminders  │
+                                    │   escalations · PDFs   │
+                                    │   webhook retries      │
+                                    └───────────┬────────────┘
+                                                │ outbound
+   ┌──────────────┬──────────────┬──────────────┼───────────────┬───────────────┐
+   ▼              ▼              ▼              ▼               ▼               ▼
+ WhatsApp BSP   Razorpay      SMS gateway    Email (SES/     e-sign          Maps /
+ (AiSensy/…)  (Links·Autopay· (MSG91/Twilio) SendGrid/SMTP)  (Digio/         Sentry
+              Payouts·webhook)                                Leegality)
+
+ Inbound webhooks → Django receivers → verified, deduped, queued for async processing.</pre>
+
+      <h3>Components</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Component</th><th>Tech</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td>API service</td><td>Django 5 · DRF · Gunicorn/Uvicorn</td><td>Business logic, auth, REST API, webhook receivers, admin</td></tr>
+            <tr><td>Worker</td><td>Celery</td><td>Async &amp; scheduled jobs — billing, reminders, PDFs, notifications, webhook processing, exports</td></tr>
+            <tr><td>Scheduler</td><td>Celery Beat (DB schedule)</td><td>Fires the daily &amp; periodic jobs</td></tr>
+            <tr><td>Admin dashboard</td><td>React + Vite + TS</td><td>Staff UI</td></tr>
+            <tr><td>Public website</td><td>Next.js (App Router)</td><td>Marketing, listings, enquiry / booking — SSR/SSG for SEO</td></tr>
+            <tr><td>Tenant portal</td><td>React + Vite + TS</td><td>Tenant self-service (shares the design system with the dashboard)</td></tr>
+            <tr><td>Database</td><td>PostgreSQL 16 (managed)</td><td>System of record</td></tr>
+            <tr><td>Redis</td><td>Managed Redis</td><td>Cache, Celery broker + result backend, rate-limit counters, OTP store, job locks</td></tr>
+            <tr><td>Object storage</td><td>S3 / Cloudflare R2</td><td>Photos, video, generated PDFs, KYC docs — private buckets, signed URLs</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Scheduled jobs (Celery Beat)</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Job</th><th>Schedule (IST)</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>billing.run_daily_invoicing</code></td><td>06:00 daily</td><td>Build &amp; issue invoices for tenancies due today; render PDF; queue the invoice message. Idempotent per (tenancy, period).</td></tr>
+            <tr><td><code>collections.run_reminders</code></td><td>08:00 daily</td><td>Evaluate the cadence for every unpaid invoice and send the due reminder with its payment link; skip if paid / opted-out / quiet hours / promised.</td></tr>
+            <tr><td><code>billing.apply_late_fees</code></td><td>09:00 daily</td><td>Add a late-fee line once per invoice after the grace period.</td></tr>
+            <tr><td><code>tenancies.escalate_rent</code></td><td>02:00 daily</td><td>Apply rent escalation on tenancies hitting their anniversary.</td></tr>
+            <tr><td><code>tenancies.expiry_reminders</code></td><td>07:00 daily</td><td>60 / 30 / 7-day agreement-expiry reminders + staff alert.</td></tr>
+            <tr><td><code>meters.reading_reminders</code></td><td>10:00 daily</td><td>Alert staff about units missing a current-month reading before billing.</td></tr>
+            <tr><td><code>maintenance.preventive_due</code></td><td>07:30 daily</td><td>Create / notify preventive-maintenance tasks that are due.</td></tr>
+            <tr><td><code>payments.reconcile_pending</code></td><td>every 30 min</td><td>Poll Razorpay for links still "created" past the webhook grace; sync status.</td></tr>
+            <tr><td><code>messaging.retry_failed</code></td><td>every 15 min</td><td>Retry failed sends with backoff; fall back channel after N tries.</td></tr>
+            <tr><td><code>reports.email_digests</code></td><td>Mon 08:00 / 1st 08:00</td><td>Weekly collections + monthly P&amp;L email to the owner.</td></tr>
+            <tr><td><code>common.nightly_backup_check</code></td><td>01:00 daily</td><td>Verify the last DB + media backup succeeded; alert if not.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Integrations</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Integration</th><th>Purpose</th><th>Direction</th></tr></thead>
+          <tbody>
+            <tr><td>WhatsApp BSP</td><td>Send template messages; receive delivery status &amp; inbound replies</td><td>out + webhook</td></tr>
+            <tr><td>Razorpay</td><td>Payment Links, UPI Autopay mandates, Payouts, webhooks</td><td>out + webhook</td></tr>
+            <tr><td>SMS (MSG91 / Twilio)</td><td>OTP + fallback notifications</td><td>out</td></tr>
+            <tr><td>Email (SES / SendGrid / SMTP)</td><td>Invoices, receipts, digests, staff alerts</td><td>out</td></tr>
+            <tr><td>e-sign (Digio / Leegality)</td><td>Rental-agreement signing</td><td>out + webhook</td></tr>
+            <tr><td>Maps (Google / Mapbox)</td><td>Geocoding on save; map view on the site</td><td>out</td></tr>
+            <tr><td>Sentry</td><td>Error monitoring — API, workers, frontends</td><td>out</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="lead-note"><b>WhatsApp adapter:</b> one <code>WhatsAppProvider</code> interface (<code>send_template</code>, <code>parse_status_webhook</code>, <code>parse_inbound_webhook</code>) with concrete <code>AiSensyProvider</code> / <code>GupshupProvider</code> / <code>TwilioWhatsAppProvider</code> / <code>InteraktProvider</code>. Switching provider is a config change plus a template-name remap — no domain code changes.</p>
+
+      <h3>Consistency rules</h3>
+      <ul>
+        <li>Money is <code>Decimal(12,2)</code>, currency stored explicitly (INR in v1); rounding documented per charge.</li>
+        <li>Invoices immutable once issued; ledger append-only; balances derived and cached.</li>
+        <li>Idempotency keys on invoice generation (<code>tenancy:period</code>), payments (<code>razorpay_payment_id</code>) and outbound messages (<code>event_id</code>).</li>
+        <li>Soft-delete for tenants, units and tenancies with financial history — never hard-deleted.</li>
+        <li>Store UTC, present IST.</li>
+      </ul>
+
+      <h3>Environments &amp; delivery</h3>
+      <ul>
+        <li><b>local</b> — Docker Compose: api, worker, beat, postgres, redis, minio, mailhog.</li>
+        <li><b>staging</b> — mirrors prod; sandbox BSP / Razorpay keys; seeded demo data.</li>
+        <li><b>production</b> — managed Postgres + Redis; object storage; HTTPS; backups; monitoring.</li>
+        <li>One container image for api / worker / beat (different command). Nginx for TLS. CI: ruff → mypy → pytest → build → migrate → deploy. Frontends build eslint → tsc → vitest → deploy.</li>
+      </ul>
+    </section>
+
+    <!-- 07 DATA MODEL -->
+    <section class="doc-section" id="datamodel">
+      <div class="sec-head"><span class="sec-num">07</span><h2>Data model</h2></div>
+      <p>All tables carry <code>id (uuid)</code>, <code>created_at</code>, <code>updated_at</code>; money is <code>Decimal(12,2)</code> INR; business tables carry <code>organization_id</code> (one org in v1, namespaced for a future SaaS).</p>
+
+      <pre class="code">Organization 1─┬─* User(staff) ─* PropertyAssignment *─ Property
+               │
+               ├─* Property 1─* Block 1─* Floor 1─* Unit 1─* Bed
+               │                                     ├─* MediaAsset
+               │                                     ├─* UnitAmenity *─ Amenity
+               │                                     └─* Meter 1─* MeterReading
+               │
+               ├─* Lead 1─* LeadActivity  └─1 VisitSchedule
+               │
+               ├─* Tenant 1─* TenantDocument(KYC)  └─* CoTenant / Guarantor
+               │
+               ├─* Tenancy ──1 Unit / Bed
+               │       ├─1 RentalAgreement ─* AgreementVersion
+               │       ├─* RecurringCharge ─ ChargeType
+               │       ├─* Inspection(move-in/out) ─* InspectionItem
+               │       ├─* Invoice 1─* InvoiceLineItem
+               │       │        ├─* Payment ─* PaymentAllocation
+               │       │        └─* CreditNote
+               │       ├─* LedgerEntry          (rent account, append-only)
+               │       ├─* DepositLedgerEntry   (deposit account, append-only)
+               │       ├─* ReminderLog · PromiseToPay
+               │       └─1 MoveOutSettlement
+               │
+               ├─* MaintenanceTicket ─* TicketComment / TicketAttachment ─ Vendor
+               ├─* PreventiveMaintenance ─* PreventiveTask   ├─* Asset ─ Unit
+               │
+               ├─* Expense ─ ExpenseCategory / Vendor / Property   ├─* OwnerPayout
+               │
+               ├─* NotificationTemplate · MessageLog · InboundMessage
+               ├─* Broadcast ─* BroadcastRecipient   ├─* Announcement ─* AnnouncementAck
+               │
+               ├─* Document(vault)  · AuditLog · ChangeRequest · Review
+               └─1 Settings / IntegrationCredentials</pre>
+
+      <h3>Entity groups</h3>
+      <div class="grid">
+        <div class="card"><h4>Access</h4><p>Organization, Settings, IntegrationCredentials (encrypted), User, PropertyAssignment.</p></div>
+        <div class="card"><h4>Property &amp; inventory</h4><p>Property, Block, Floor, Unit, Bed, Amenity, UnitAmenity, PropertyAmenity, MediaAsset, Meter, MeterReading.</p></div>
+        <div class="card"><h4>Leads</h4><p>Lead, LeadActivity, VisitSchedule.</p></div>
+        <div class="card"><h4>Tenants &amp; tenancies</h4><p>Tenant, TenantDocument, CoTenant, Guarantor, Tenancy, RentalAgreement, AgreementTemplate / Version, Inspection, InspectionItem.</p></div>
+        <div class="card"><h4>Billing &amp; ledger</h4><p>ChargeType, RecurringCharge, Invoice, InvoiceLineItem, CreditNote, Payment, PaymentAllocation, LedgerEntry, DepositLedgerEntry, MoveOutSettlement, ReminderLog, PromiseToPay.</p></div>
+        <div class="card"><h4>Maintenance</h4><p>MaintenanceTicket, TicketComment, TicketAttachment, Vendor, PreventiveMaintenance, PreventiveTask, Asset.</p></div>
+        <div class="card"><h4>Messaging</h4><p>NotificationTemplate, MessageLog, InboundMessage, Broadcast, BroadcastRecipient, Announcement, AnnouncementAck.</p></div>
+        <div class="card"><h4>Finance</h4><p>ExpenseCategory, Expense, OwnerPayout.</p></div>
+        <div class="card"><h4>Governance</h4><p>Document, AuditLog, ChangeRequest, Review, WebhookEvent.</p></div>
+      </div>
+
+      <h3>Key derived rules</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Value</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr><td>Unit becomes <code>occupied</code></td><td>When a Tenancy goes <code>active</code>; back to <code>available</code> on <code>ended</code> (or <code>maintenance</code> if a turnover task is open).</td></tr>
+            <tr><td>Tenancy outstanding</td><td>Sum of unpaid invoice balances = last <code>LedgerEntry.running_balance</code> on the rent account.</td></tr>
+            <tr><td>Electricity (sub-meter)</td><td><code>(current − previous) × rate + fixed_charge</code>; a reading must exist for the period or the run flags it.</td></tr>
+            <tr><td>Electricity (shared)</td><td>Parent bill split by <code>equal</code> / <code>headcount</code> / <code>ratio</code>; rounding remainder assigned to the largest share so it reconciles exactly.</td></tr>
+            <tr><td>Proration</td><td><code>rent × days_occupied_in_period ÷ days_in_period</code>, rounded per policy (default: actual days).</td></tr>
+            <tr><td>Late fee</td><td>Once per invoice after <code>due_date + grace_days</code>: <code>flat</code> | <code>percent × balance</code> | <code>per_day × days</code>, capped at <code>late_fee_cap</code>.</td></tr>
+            <tr><td>Rent escalation</td><td>On the start-date anniversary: <code>rent ×= (1 + escalation_percent ÷ 100)</code>; writes <code>escalation_last_applied_on</code>.</td></tr>
+            <tr><td>Deposit refund</td><td><code>deposit_held − outstanding_dues − damage_deductions − other_deductions</code>, floored at 0; negative → tenant owes.</td></tr>
+            <tr><td>Aging bucket</td><td><code>today − invoice.due_date</code> → 0–30 / 31–60 / 61–90 / 90+.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 08 WHATSAPP -->
+    <section class="doc-section" id="whatsapp">
+      <div class="sec-head"><span class="sec-num">08</span><h2>WhatsApp automation</h2></div>
+      <p>WhatsApp is the primary notification channel, delivered through a BSP (AiSensy / Gupshup / Twilio / Interakt) behind a single swappable adapter. Business-initiated messages use pre-approved templates; variable order matches what is registered on the BSP.</p>
+
+      <h3>Template catalogue (representative)</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Event</th><th>Trigger</th><th>Attach</th><th>Phase</th></tr></thead>
+          <tbody>
+            <tr><td><code>enquiry_ack</code></td><td>Website enquiry created</td><td>—</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>onboarding_welcome</code></td><td>Tenancy activated</td><td>House-rules PDF</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>invoice_issued</code></td><td>Monthly / ad-hoc invoice issued</td><td>Invoice PDF</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>electricity_bill</code> · <code>water_bill</code> · <code>bill_generic</code></td><td>Utility line billed separately</td><td>—</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>rent_reminder_pre</code> · <code>rent_due_today</code> · <code>rent_overdue_1</code></td><td>Cadence T−3 / T0 / T+1</td><td>—</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>rent_overdue_2/3/final</code> · <code>late_fee_applied</code></td><td>Cadence T+3 / T+7 / T+15; late fee added</td><td>—</td><td><span class="chip p2">P2</span></td></tr>
+            <tr><td><code>payment_received</code></td><td>Payment success</td><td>Receipt PDF</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>otp_login</code></td><td>Tenant portal login</td><td>—</td><td><span class="chip p1">P1</span></td></tr>
+            <tr><td><code>agreement_ready</code> · <code>agreement_signed_copy</code></td><td>e-sign sent / completed</td><td>Signed PDF</td><td><span class="chip p2">P2</span></td></tr>
+            <tr><td><code>visit_confirmed</code> · <code>visit_reminder</code></td><td>Visit scheduled / 2 h before</td><td>—</td><td><span class="chip p2">P2</span></td></tr>
+            <tr><td><code>autopay_setup</code> · <code>autopay_failed</code></td><td>Mandate active / debit failed</td><td>—</td><td><span class="chip p2">P2</span></td></tr>
+            <tr><td><code>agreement_expiry_60/30/7</code> · <code>renewal_offer</code></td><td>Renewal window</td><td>—</td><td><span class="chip p2">P2</span> <span class="chip p3">P3</span></td></tr>
+            <tr><td><code>notice_ack</code> · <code>moveout_settlement</code> · <code>deposit_refund_initiated</code></td><td>Notice / settlement / refund</td><td>Statement PDF</td><td><span class="chip p2">P2</span></td></tr>
+            <tr><td><code>ticket_created/status/resolved</code></td><td>Maintenance ticket lifecycle</td><td>—</td><td><span class="chip p2">P2</span></td></tr>
+            <tr><td><code>preventive_notice</code> · <code>announcement</code> · <code>festival_greeting</code></td><td>Planned work · broadcast · seasonal</td><td>optional</td><td><span class="chip p2">P2</span> <span class="chip p3">P3</span></td></tr>
+            <tr><td><code>meter_reading_request</code></td><td>Ask tenant to submit a reading</td><td>—</td><td><span class="chip p2">P2</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Reminder cadence (editable)</h3>
+      <pre class="code">[
+  { "offset_days": -3, "event": "rent_reminder_pre", "channel": "whatsapp" },
+  { "offset_days":  0, "event": "rent_due_today",     "channel": "whatsapp" },
+  { "offset_days":  1, "event": "rent_overdue_1",     "channel": "whatsapp" },
+  { "offset_days":  3, "event": "rent_overdue_2",     "channel": "whatsapp" },
+  { "offset_days":  7, "event": "rent_overdue_3",     "channel": "whatsapp" },
+  { "offset_days": 15, "event": "rent_overdue_final", "channel": "whatsapp", "also": ["sms"] }
+]</pre>
+      <p>The daily job matches <code>today − due_date</code> against the entries, sends once per stage (tracked in <code>ReminderLog</code>), and stops the moment the balance is zero. If <code>bill_delivery_mode = consolidated</code>, only <code>invoice_issued</code> is used and the per-utility templates stay dormant.</p>
+
+      <h3>Two-way (inbound) keywords</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Keyword</th><th>Auto-reply</th></tr></thead>
+          <tbody>
+            <tr><td><code>BALANCE</code> / <code>DUE</code></td><td>Current outstanding + a payment link</td></tr>
+            <tr><td><code>PAY</code></td><td>A fresh link for the oldest unpaid invoice</td></tr>
+            <tr><td><code>RECEIPT</code> / <code>STATEMENT</code></td><td>Last receipt / ledger statement PDF</td></tr>
+            <tr><td><code>TICKET &lt;text&gt;</code></td><td>Creates a maintenance ticket, replies with the number</td></tr>
+            <tr><td><code>STOP</code> / <code>START</code></td><td>Sets / clears opt-out</td></tr>
+            <tr><td>anything else</td><td>Help text + routed to the staff inbox</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Guardrails</h3>
+      <ul>
+        <li>Opt-in captured at onboarding (logged); opt-out always honoured; quiet hours 21:00–08:00 IST for non-critical sends.</li>
+        <li>Approved templates only for business-initiated messages; correct utility vs marketing category; marketing respects opt-out strictly.</li>
+        <li>Payment links are per-invoice and expiring; no sensitive IDs in message bodies.</li>
+        <li>Delivery status tracked (sent / delivered / read / failed) with retry then SMS / email fallback; per-message cost logged.</li>
+        <li>A <code>console</code> provider for local / CI; <code>POST /messages/test</code> for template QA.</li>
+      </ul>
+    </section>
+
+    <!-- 09 BILLING -->
+    <section class="doc-section" id="billing">
+      <div class="sec-head"><span class="sec-num">09</span><h2>Billing &amp; payments</h2></div>
+
+      <h3>Charge types</h3>
+      <ul class="cols2">
+        <li>Rent</li><li>Security deposit</li><li>Electricity</li><li>Water</li>
+        <li>Maintenance / society</li><li>Wi-Fi / internet</li><li>Mess / food</li><li>Housekeeping</li>
+        <li>Parking</li><li>Gas / cylinder</li><li>Late fee / penalty</li><li>Damage / repair recovery</li>
+        <li>One-time (key deposit, painting)</li><li>Custom</li>
+      </ul>
+
+      <h3>Electricity billing modes</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Mode</th><th>Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Sub-meter</td><td><code>(current − previous) × rate_per_unit + fixed_charge</code>, from the period's reading + meter photo. Optional tiered slabs.</td></tr>
+            <tr><td>Fixed</td><td>A flat monthly amount per unit.</td></tr>
+            <tr><td>Shared / split</td><td>Parent property bill split across sibling units — <code>equal</code>, by <code>headcount</code>, or by custom <code>ratio</code>; rounding remainder to the largest share.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Water billing mirrors this (fixed / per-head / metered). If no reading exists at billing time, electricity is skipped, the invoice is flagged <code>electricity_pending</code>, staff are alerted, and a later reading produces a supplementary line.</p>
+
+      <h3>Invoice → ledger example</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Date</th><th>Description</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Balance</th></tr></thead>
+          <tbody>
+            <tr><td>2026-09-01</td><td>Invoice INV-2026-0043 (Sep)</td><td class="num">16,462.00</td><td class="num">—</td><td class="num">16,462.00</td></tr>
+            <tr><td>2026-09-04</td><td>Payment · UPI · RCPT-0091</td><td class="num">—</td><td class="num">16,462.00</td><td class="num">0.00</td></tr>
+            <tr><td>2026-10-01</td><td>Invoice INV-2026-0061 (Oct)</td><td class="num">15,930.00</td><td class="num">—</td><td class="num">15,930.00</td></tr>
+            <tr><td>2026-10-09</td><td>Late fee (Oct)</td><td class="num">300.00</td><td class="num">—</td><td class="num">16,230.00</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Payments</h3>
+      <ul>
+        <li><b>Online</b> — Razorpay Payment Link per invoice (UPI / card / netbanking / wallet); webhook <code>payment_link.paid</code> → verify signature → dedupe → <code>Payment</code> + allocations (oldest-first on overpayment) → ledger credit → receipt PDF → <code>payment_received</code> → cancel pending reminders.</li>
+        <li><b>UPI Autopay</b> — one-time e-mandate; Razorpay auto-charges on the due day; <code>subscription.charged</code> books it identically; a failed debit sends <code>autopay_failed</code> and falls back to the normal cadence.</li>
+        <li><b>Offline</b> — cash / cheque / bank transfer entered with proof; <code>pending</code> until an Accountant / Admin approves; then same downstream (allocation, ledger, receipt).</li>
+        <li><b>Partial &amp; allocation</b> — invoice goes <code>partially_paid</code>; allocation order oldest-first, then rent → utilities → other → late fee; overpayment becomes a credit applied to the next invoice.</li>
+        <li><b>Refunds &amp; payouts</b> — deposit refund via Razorpay Payout or manual, tracked on the deposit ledger; owner payouts recorded per property for the P&amp;L.</li>
+      </ul>
+
+      <h3>Move-out settlement</h3>
+      <pre class="code">refund = deposit_held
+       − outstanding_rent_ledger_balance
+       − Σ inspection.damage_deductions
+       − other_deductions   (cleaning, unpaid utilities from final readings)
+       (floored at 0; if negative, tenant owes → final invoice)</pre>
+
+      <div class="callout">
+        <b>Policies to confirm with the owner:</b> carry-forward as a line vs independent invoices (default independent) · proration basis (default actual days) · electricity on the main invoice or a separate message (<code>bill_delivery_mode</code>) · grace period &amp; late-fee formula &amp; cap · allocation priority · tenant-submitted meter readings on/off · GST registration · deposit months &amp; non-refundable deductions · website token amount &amp; hold duration.
+      </div>
+    </section>
+
+    <!-- 10 STACK -->
+    <section class="doc-section" id="stack">
+      <div class="sec-head"><span class="sec-num">10</span><h2>Tech stack</h2></div>
+
+      <h3>Backend</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Concern</th><th>Choice</th></tr></thead>
+          <tbody>
+            <tr><td>Language / framework</td><td>Python 3.12+ · Django 5.x · Django REST Framework</td></tr>
+            <tr><td>API schema &amp; docs</td><td>drf-spectacular (OpenAPI 3 → Swagger UI, TS client)</td></tr>
+            <tr><td>Auth</td><td>djangorestframework-simplejwt · django-otp / pyotp (2FA) · custom phone-OTP backend</td></tr>
+            <tr><td>Async / scheduling</td><td>Celery 5 · django-celery-beat · Redis broker</td></tr>
+            <tr><td>Database / cache</td><td>PostgreSQL 16 · Redis (django-redis)</td></tr>
+            <tr><td>Files</td><td>django-storages + boto3 → S3 / Cloudflare R2 (private, signed URLs)</td></tr>
+            <tr><td>PDF</td><td>WeasyPrint (HTML → PDF) — invoices, receipts, statements, agreements</td></tr>
+            <tr><td>Domain helpers</td><td>Decimal / django-money · django-phonenumber-field · django-filter · django-import-export · Pillow</td></tr>
+            <tr><td>Payments / messaging</td><td>razorpay SDK · httpx BSP adapters · MSG91 / Twilio SMS · django-anymail (SES / SendGrid)</td></tr>
+            <tr><td>Security</td><td>cryptography (Fernet) for credential encryption · django-ratelimit · pip-audit · gitleaks</td></tr>
+            <tr><td>Quality</td><td>ruff · mypy + django-stubs · pytest + pytest-django + factory_boy + freezegun · coverage.py</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Frontend</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Concern</th><th>Choice</th></tr></thead>
+          <tbody>
+            <tr><td>Dashboard &amp; portal</td><td>React 18 + Vite + TypeScript · React Router v6</td></tr>
+            <tr><td>Public website</td><td>Next.js (App Router) — SSR/SSG for SEO</td></tr>
+            <tr><td>Server state / HTTP</td><td>TanStack Query · Axios wrapper with token refresh</td></tr>
+            <tr><td>API types</td><td>openapi-typescript + orval, generated from <code>/api/schema/</code></td></tr>
+            <tr><td>Client state / forms</td><td>Zustand · React Hook Form + Zod</td></tr>
+            <tr><td>UI</td><td>Tailwind CSS + shadcn/ui (Radix) · TanStack Table · Recharts · date-fns (Asia/Kolkata)</td></tr>
+            <tr><td>Maps / uploads</td><td>MapLibre / Leaflet · react-dropzone with presigned S3 uploads</td></tr>
+            <tr><td>Payments</td><td>Razorpay Checkout JS + hosted Payment Links</td></tr>
+            <tr><td>i18n / PWA</td><td>i18next (English / Hindi) · vite-plugin-pwa (portal)</td></tr>
+            <tr><td>Quality</td><td>eslint · prettier · Vitest + React Testing Library · Playwright (E2E)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Why this stack</h3>
+      <ul>
+        <li><b>Django + DRF</b> — the fastest path to a correct, auditable domain model with migrations, admin and mature auth; ideal for money and records.</li>
+        <li><b>Celery + Beat</b> — the billing and reminder automation is inherently scheduled and async; this is the standard tool.</li>
+        <li><b>PostgreSQL</b> — transactions, constraints, JSONB for flexible config, strong indexing.</li>
+        <li><b>React + Vite</b> for the data-dense dashboard; <b>Next.js</b> only where SEO needs server rendering.</li>
+        <li><b>Razorpay</b> — first-class UPI, Payment Links (ideal for WhatsApp), UPI Autopay and Payouts.</li>
+        <li><b>BSP adapter</b> — no lock-in; the WhatsApp provider is a config choice.</li>
+      </ul>
+    </section>
+
+    <!-- 11 STRUCTURE -->
+    <section class="doc-section" id="structure">
+      <div class="sec-head"><span class="sec-num">11</span><h2>Project structure</h2></div>
+      <p>A monorepo — pnpm workspaces for the frontends beside a Django backend directory.</p>
+
+      <pre class="code">fahiq/
+├─ backend/                    <span class="c"># Django project</span>
+│  ├─ config/                  <span class="c"># settings (base/dev/prod), urls, celery, asgi/wsgi</span>
+│  ├─ apps/
+│  │  ├─ accounts/             <span class="c"># staff users, roles, permissions, 2FA, property assignment</span>
+│  │  ├─ organization/         <span class="c"># business profile, settings, encrypted integration credentials</span>
+│  │  ├─ properties/           <span class="c"># property, block, floor, unit, bed, amenity, media</span>
+│  │  ├─ catalog/              <span class="c"># public read models, search, filters, SEO pages</span>
+│  │  ├─ leads/                <span class="c"># enquiries, pipeline, visits, activities</span>
+│  │  ├─ tenants/              <span class="c"># tenant persons, KYC documents, co-tenants, guarantors</span>
+│  │  ├─ tenancies/            <span class="c"># lease, terms, escalation, renewal, notice, move-out, transfer</span>
+│  │  ├─ agreements/           <span class="c"># templates, generation, e-sign, versions</span>
+│  │  ├─ inspections/          <span class="c"># move-in/out inventory, condition photos</span>
+│  │  ├─ meters/               <span class="c"># meter definitions, readings, consumption</span>
+│  │  ├─ billing/              <span class="c"># charge types, recurring charges, invoices, proration, late fees, numbering</span>
+│  │  ├─ payments/             <span class="c"># razorpay, links, autopay, webhooks, offline, receipts, refunds, payouts</span>
+│  │  ├─ ledger/               <span class="c"># tenant ledger, deposit ledger, aging, statements</span>
+│  │  ├─ collections/          <span class="c"># reminder cadence engine, dunning, promise-to-pay</span>
+│  │  ├─ maintenance/          <span class="c"># tickets, SLA, vendors, preventive schedules, assets</span>
+│  │  ├─ messaging/            <span class="c"># templates, channel router, WhatsApp BSP adapter, delivery logs, inbound</span>
+│  │  ├─ finance/              <span class="c"># expenses, categories, vendors, P&amp;L, owner payouts, exports</span>
+│  │  ├─ reports/              <span class="c"># rent roll, occupancy, collections, aging, funnel, exports</span>
+│  │  ├─ documents/            <span class="c"># document vault, PDF rendering, signed URLs</span>
+│  │  ├─ audit/                <span class="c"># audit log, change requests / approvals</span>
+│  │  └─ common/               <span class="c"># base models, money &amp; phone helpers, pagination, permissions</span>
+│  ├─ manage.py  ·  pyproject.toml  ·  Dockerfile
+│
+├─ frontend/
+│  ├─ packages/
+│  │  ├─ api-client/           <span class="c"># generated TS client + shared types</span>
+│  │  ├─ ui/                   <span class="c"># shared design-system components</span>
+│  │  └─ config/               <span class="c"># eslint / tsconfig / tailwind presets</span>
+│  └─ apps/
+│     ├─ dashboard/            <span class="c"># React + Vite (staff)</span>
+│     ├─ portal/               <span class="c"># React + Vite (tenant)</span>
+│     └─ website/              <span class="c"># Next.js (public, SEO)</span>
+│
+├─ infra/
+│  ├─ docker-compose.yml       <span class="c"># local: db, redis, minio, mailhog, api, worker, beat</span>
+│  └─ nginx/  ·  render.yaml | fly.toml | terraform/
+│
+├─ docs/                       <span class="c"># the Markdown specification (01–15) + this page</span>
+└─ .github/workflows/          <span class="c"># CI</span></pre>
+
+      <p class="lead-note">Domain logic lives in <code>services.py</code> per app (thin views, thin models, fat services); scheduled / async entry points in <code>tasks.py</code> per app.</p>
+
+      <h3>Environment variables (excerpt)</h3>
+      <pre class="code"><span class="c"># core</span>
+DJANGO_SETTINGS_MODULE=config.settings.dev
+SECRET_KEY=…            DATABASE_URL=postgres://…      REDIS_URL=redis://…
+FIELD_ENCRYPTION_KEY=…  <span class="c"># Fernet key for IntegrationCredentials</span>
+
+<span class="c"># storage</span>
+AWS_S3_ENDPOINT_URL=…   AWS_STORAGE_BUCKET_NAME=…   KYC_BUCKET_NAME=…
+AWS_ACCESS_KEY_ID=…     AWS_SECRET_ACCESS_KEY=…
+
+<span class="c"># payments</span>
+RAZORPAY_KEY_ID=…  RAZORPAY_KEY_SECRET=…  RAZORPAY_WEBHOOK_SECRET=…
+BOOKING_TOKEN_AMOUNT=2000   BOOKING_HOLD_DAYS=3
+
+<span class="c"># whatsapp (BSP)</span>
+WHATSAPP_PROVIDER=aisensy      <span class="c"># aisensy | gupshup | twilio | interakt | console</span>
+WHATSAPP_API_KEY=…  WHATSAPP_SENDER_ID=…  WHATSAPP_WEBHOOK_SECRET=…
+
+<span class="c"># sms / email / esign / maps / sentry</span>
+SMS_PROVIDER=msg91  SMS_API_KEY=…
+EMAIL_URL=…  DEFAULT_FROM_EMAIL=…
+ESIGN_PROVIDER=digio  ESIGN_CLIENT_ID=…  ESIGN_CLIENT_SECRET=…
+MAPS_API_KEY=…  SENTRY_DSN=…
+
+<span class="c"># frontend (per app)</span>
+VITE_API_BASE_URL=…  VITE_RAZORPAY_KEY_ID=…  VITE_MAPS_TOKEN=…  VITE_SENTRY_DSN=…</pre>
+    </section>
+
+    <!-- 12 ROADMAP -->
+    <section class="doc-section" id="roadmap">
+      <div class="sec-head"><span class="sec-num">12</span><h2>Roadmap</h2></div>
+      <p>Phased so a usable, revenue-affecting slice — automated billing + WhatsApp reminders + payments — ships first, then breadth. Durations assume ~1–2 backend + 1 frontend engineer.</p>
+
+      <div class="phase">
+        <div class="phase-head"><span class="p">P0</span><span class="goal">Foundations</span><span class="dur">2–3 weeks</span></div>
+        <ul>
+          <li>Monorepo, CI, Docker Compose, environments, Sentry.</li>
+          <li>Django + Postgres + Redis + Celery + Beat + object storage.</li>
+          <li>Auth: staff login + 2FA, tenant phone-OTP, RBAC + property scoping, audit log.</li>
+          <li>Organization / Settings / encrypted IntegrationCredentials with test buttons.</li>
+          <li>Property / Unit / Bed / Amenity / Meter models + dashboard shell + Properties CRUD with photo upload.</li>
+          <li>OpenAPI schema → generated TS client; seed/demo data command.</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-head"><span class="p">P1</span><span class="goal">MVP — list → enquire → onboard → bill → collect</span><span class="dur">5–7 weeks</span></div>
+        <ul>
+          <li>Public website: landing, search + filters, listing &amp; property pages, enquiry form, WhatsApp click-to-chat, SSR/SEO, sitemap.</li>
+          <li>Leads: capture, pipeline, assignment, auto <code>enquiry_ack</code>, convert-to-onboarding.</li>
+          <li>Onboarding: application + KYC + terms + unit assignment + welcome (agreement = signed-scan upload for now).</li>
+          <li>Billing: charge types, recurring charges, daily billing run (rent + recurring + sub-meter / fixed electricity + water), numbering, invoice PDF, tenant + deposit ledger, ad-hoc invoices.</li>
+          <li>Payments: Razorpay Payment Links, webhook reconciliation, receipt PDF, offline entry + approval, partial payments + allocation.</li>
+          <li>WhatsApp: BSP adapter + <code>console</code> provider, template registry, scheduler, P1 templates, cadence T−3 / T0 / T+1, <code>payment_received</code>, delivery tracking.</li>
+          <li>Dashboard home KPIs; tenant portal P1 (OTP, dues + pay, invoices, receipts, ledger, tickets); reports: rent roll, occupancy, collections.</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-head"><span class="p">P2</span><span class="goal">Depth — automation, agreements, maintenance, self-service</span><span class="dur">5–7 weeks</span></div>
+        <ul>
+          <li>Proration, late-fee engine, credit notes with approvals, shared-meter split, full cadence with escalation, aging report.</li>
+          <li>UPI Autopay, promise-to-pay, deposit refund via Payout, reconciliation view.</li>
+          <li>Agreement templates + e-sign + versioning + police-verification form.</li>
+          <li>Rent escalation, renewal workflow + expiry reminders, notice → move-out settlement, transfers, move-in/out inspections.</li>
+          <li>Maintenance tickets (portal + WhatsApp), vendors, SLA, preventive schedules.</li>
+          <li>Two-way WhatsApp, keyword auto-replies, staff inbox, broadcasts, channel fallback, opt-out + quiet hours + cost logging.</li>
+          <li>Tenant portal P2; website schedule-a-visit + book-now token + reviews; reports P2 + scheduled digests; cadence &amp; template editors.</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-head"><span class="p">P3</span><span class="goal">Growth — finance, analytics, content</span><span class="dur">4–6 weeks</span></div>
+        <ul>
+          <li>Expenses, owner payouts, per-property P&amp;L, cash-flow, Tally / Zoho exports, GST report.</li>
+          <li>Asset register; churn / retention &amp; maintenance-cost analytics; richer dashboard charts.</li>
+          <li>Public-site CMS-lite, locality SEO pages, English / Hindi, blog.</li>
+          <li>Tenant portal P3 (PG roommate + mess, refer-a-friend, PWA, push); electricity slabs; convenience-fee pass-through.</li>
+        </ul>
+      </div>
+
+      <div class="phase">
+        <div class="phase-head"><span class="p">P4</span><span class="goal">Advanced / optional</span><span class="dur">ongoing</span></div>
+        <ul>
+          <li>React Native apps; channel manager; smart access &amp; IoT meters; AI (chatbot, default-risk scoring, ticket triage, OCR).</li>
+          <li>Aadhaar / DigiLocker KYC; mess &amp; laundry; short-stay mode; renter's insurance; BBPS; multi-owner SaaS.</li>
+        </ul>
+      </div>
+
+      <h3>First three demo milestones</h3>
+      <ol class="steps">
+        <li><b>M1 (end P0)</b> — manage properties &amp; units with photos; see them listed.</li>
+        <li><b>M2 (mid P1)</b> — website search + listing detail + enquiry → lead in the dashboard → <code>enquiry_ack</code> on WhatsApp.</li>
+        <li><b>M3 (end P1)</b> — onboard a tenant → billing run creates an invoice → WhatsApp bill with a Razorpay link → pay → auto-reconcile → receipt on WhatsApp → dashboard shows the collection.</li>
+      </ol>
+    </section>
+
+    <!-- 13 SETUP -->
+    <section class="doc-section" id="setup">
+      <div class="sec-head"><span class="sec-num">13</span><h2>Initial setup</h2></div>
+      <p>Local development brings up Postgres, Redis, MinIO (S3) and MailHog in Docker; the API, worker and Beat run on the host.</p>
+
+      <pre class="code"><span class="c"># one-time</span>
+cp .env.example .env
+docker compose -f infra/docker-compose.yml up -d db redis minio mailhog
+
+<span class="c"># backend</span>
+cd backend
+python -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements/dev.txt
+python manage.py migrate
+python manage.py seed_demo          <span class="c"># demo org, properties, units, a tenant, invoices</span>
+python manage.py runserver
+celery -A config worker -l info
+celery -A config beat -l info
+
+<span class="c"># frontend</span>
+cd ../frontend
+pnpm install
+pnpm --filter website dev           <span class="c"># public site  :3000</span>
+pnpm --filter dashboard dev         <span class="c"># admin        :5173</span>
+pnpm --filter portal dev            <span class="c"># tenant       :5174</span>
+pnpm --filter api-client generate   <span class="c"># regenerate the TS client from the backend OpenAPI</span></pre>
+
+      <h3>Services &amp; ports</h3>
+      <div class="scroll">
+        <table class="tbl">
+          <thead><tr><th>Service</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>API</td><td>localhost:8000 · schema at <code>/api/schema/</code> · docs at <code>/api/docs/</code></td></tr>
+            <tr><td>Admin dashboard</td><td>localhost:5173</td></tr>
+            <tr><td>Tenant portal</td><td>localhost:5174</td></tr>
+            <tr><td>Public website</td><td>localhost:3000</td></tr>
+            <tr><td>MailHog</td><td>localhost:8025</td></tr>
+            <tr><td>MinIO console</td><td>localhost:9001</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Webhooks in development</h3>
+      <p>Run an <code>ngrok</code> / <code>cloudflared</code> tunnel to <code>:8000</code> and point the Razorpay and BSP sandbox webhooks at it. Use Razorpay test mode and the <code>console</code> WhatsApp provider to avoid real charges and sends; <code>POST /messages/test</code> sends any template to a chosen number for QA.</p>
+
+      <h3>Reading order for the full spec</h3>
+      <p>This page consolidates the Markdown specification in <code>/docs</code>: <code>01</code> product overview · <code>02</code> feature catalogue · <code>03</code> roles &amp; permissions · <code>04</code> architecture · <code>05</code> data model · <code>06</code> API design · <code>07</code> WhatsApp automation · <code>08</code> billing &amp; payments · <code>09</code> admin dashboard · <code>10</code> public website · <code>11</code> tenant portal · <code>12</code> tech stack · <code>13</code> non-functional requirements · <code>14</code> roadmap · <code>15</code> glossary.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var KEY = 'fahiq-theme';
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+  } catch (e) {}
+
+  var tbtn = document.getElementById('themeBtn');
+  function label() {
+    var t = root.getAttribute('data-theme') || 'system';
+    tbtn.textContent = 'Theme: ' + (t === 'system' ? 'Auto' : t.charAt(0).toUpperCase() + t.slice(1));
+  }
+  if (tbtn) {
+    label();
+    tbtn.addEventListener('click', function () {
+      var cur = root.getAttribute('data-theme') || 'system';
+      var next = cur === 'system' ? 'light' : cur === 'light' ? 'dark' : 'system';
+      if (next === 'system') { root.removeAttribute('data-theme'); try { localStorage.removeItem(KEY); } catch (e) {} }
+      else { root.setAttribute('data-theme', next); try { localStorage.setItem(KEY, next); } catch (e) {} }
+      label();
+    });
+  }
+
+  var body = document.body;
+  var navBtn = document.getElementById('navBtn');
+  var scrim = document.getElementById('scrim');
+  function closeNav() { body.classList.remove('nav-open'); }
+  if (navBtn) navBtn.addEventListener('click', function () { body.classList.toggle('nav-open'); });
+  if (scrim) scrim.addEventListener('click', closeNav);
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var map = {};
+  links.forEach(function (a) {
+    map[a.getAttribute('href').slice(1)] = a;
+    a.addEventListener('click', closeNav);
+  });
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('is-active'); });
+          var a = map[en.target.id];
+          if (a) a.classList.add('is-active');
+        }
+      });
+    }, { rootMargin: '-12% 0px -78% 0px', threshold: 0 });
+    document.querySelectorAll('section.doc-section').forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
