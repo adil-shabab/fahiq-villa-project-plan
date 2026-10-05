@@ -3,7 +3,8 @@ export function downloadText(filename: string, content: string, mime = "text/pla
   const url = URL.createObjectURL(new Blob([content], { type: `${mime};charset=utf-8` }));
   const a = document.createElement("a");
   a.href = url;
-  a.download = filename;
+  // Chromium drops the whole name if it contains some non-ASCII characters (e.g. an en dash).
+  a.download = filename.replace(/[^\x20-\x7E]/g, "-");
   document.body.appendChild(a);
   a.click();
   a.remove();

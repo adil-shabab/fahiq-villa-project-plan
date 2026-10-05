@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { PortalShell } from "./components/layout/PortalShell";
 import { Account } from "./pages/Account";
-import { ComingSoon } from "./pages/ComingSoon";
+import { DocumentViewer } from "./pages/DocumentViewer";
+import { Documents } from "./pages/Documents";
 import { Home } from "./pages/Home";
 import { InvoiceDetail } from "./pages/InvoiceDetail";
 import { Invoices } from "./pages/Invoices";
@@ -23,7 +24,8 @@ function App() {
         <Route path="/tickets" element={<Tickets />} />
         <Route path="/tickets/new" element={<RaiseTicket />} />
         <Route path="/tickets/:id" element={<TicketDetail />} />
-        <Route path="/documents" element={<ComingSoon title="Documents" />} />
+        <Route path="/documents" element={<Documents />} />
+        <Route path="/documents/:docId" element={<DocumentViewer />} />
         <Route path="/account" element={<Account />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

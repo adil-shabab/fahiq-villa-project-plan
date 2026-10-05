@@ -23,7 +23,8 @@ npm run lint
 | `/tickets` | **My Tickets** (docs/19 Page 4): Raise a Ticket button, All / Open / Resolved filter (`?filter=`), ticket cards with category icon, status pill (Open / Assigned / In Progress / Resolved / Closed), "Expected by" SLA chip, empty state |
 | `/tickets/new` | **Raise a Ticket** (full screen): 9 categories, title, description, Normal / Urgent priority, photos; pinned Submit |
 | `/tickets/:id` | **Ticket detail**: Open → Assigned → In Progress → Resolved stage strip, details + photos, tenant-visible updates thread, comment composer with photo attach, "Rate this resolution" card (rating closes the ticket) |
-| `/documents` | Placeholder ("Coming soon") until docs/19 Page 5 is built |
+| `/documents` | **Documents** (docs/19 Page 5): My Agreement (Signed + View / Download, or Awaiting Signature + Sign Now), My KYC Documents (Verified / Pending / Rejected with reason and **Re-upload** sheet: take photo or pick from gallery, Submit for Review), Shared Documents (House Rules, Wi-Fi Details, Emergency Contacts, Society Guidelines) |
+| `/documents/:docId` | **Document viewer**: back, title, share, zoom in/out (pinch-zoom on touch), pinned Download |
 | `/account` | Minimal: signed-in number + log out |
 
 Logged-in routes sit inside `PortalShell`, which redirects to `/login` without a session.
@@ -40,8 +41,8 @@ receipt, and the Statement and balances update to match.
 
 Tickets raised from Home's quick sheet or the full form appear in My Tickets and Recent Activity. Attached photos are kept as data URLs in the mock store (the backend will use presigned S3 uploads).
 
-**Mock downloads:** statements export as CSV and receipts as a `.txt` until the backend renders
-the PDFs (`GET /me/ledger/statement.pdf`, `GET /me/payments/{id}/receipt`).
+**Mock downloads:** statements export as CSV; receipts and documents as `.txt` until the backend renders
+the PDFs (`GET /me/ledger/statement.pdf`, `GET /me/payments/{id}/receipt`, `GET /me/agreement/pdf`, `GET /me/documents`). Sign Now simulates the e-sign hand-off (Digio / Leegality in production).
 
 ## Auth
 

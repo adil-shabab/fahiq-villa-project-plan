@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { seedAgreement, seedKyc, sharedDocuments, type Agreement, type KycDocument, type KycType, type PortalDocument } from "../data/documents";
 import { announcements, recentActivity, type ActivityItem, type Announcement } from "../data/home";
 import { paidInvoices, unpaidInvoices, type Invoice } from "../data/invoices";
 import { seedTickets, type Ticket, type TicketPriority } from "../data/tickets";
@@ -18,6 +19,9 @@ interface PortalState {
   activity: ActivityItem[];
   /** Newest first. */
   tickets: Ticket[];
+  agreement: Agreement;
+  kyc: KycDocument[];
+  sharedDocs: PortalDocument[];
 }
 
 let state: PortalState = {
@@ -26,6 +30,9 @@ let state: PortalState = {
   announcements,
   activity: recentActivity,
   tickets: seedTickets,
+  agreement: seedAgreement,
+  kyc: seedKyc,
+  sharedDocs: sharedDocuments,
 };
 const listeners = new Set<() => void>();
 
@@ -135,6 +142,23 @@ export async function addTicketComment(id: string, text: string, files: File[]):
 export async function rateTicket(id: string, stars: number, comment: string): Promise<void> {
   await delay(500);
   updateTicket(id, (t) => ({ ...t, status: "closed", rating: { stars, comment } }));
+}
+
+/** Mock of a KYC re-upload (PATCH /me/profile → review queue). The document goes back to Pending review. */
+export async function reuploadKyc(type: KycType, file: File): Promise<void> {
+  const thumbnail = await fileToDataUrl(file);
+  await delay(900);
+  set({ kyc: state.kyc.map((k) => (k.type === type ? { ...k, status: "pending", rejectionReason: undefined, thumbnail } : k)) });
+}
+
+/** Mock of the e-sign hand-off (Digio / Leegality). The real flow redirects to the provider and returns via webhook. */
+export async function signAgreement(): Promise<void> {
+  await delay(1200);
+  set({ agreement: { ...state.agreement, status: "signed", signedAt: new Date().toLocaleDateString("en-CA") } });
+}
+
+export function findDocument(s: PortalState, id: string): PortalDocument | undefined {
+  return id === s.agreement.document.id ? s.agreement.document : s.sharedDocs.find((d) => d.id === id);
 }
 
 /** Mock of POST /me/announcements/{id}/ack */
