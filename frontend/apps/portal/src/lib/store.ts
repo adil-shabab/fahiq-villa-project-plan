@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { seedAgreement, seedKyc, sharedDocuments, type Agreement, type KycDocument, type KycType, type PortalDocument } from "../data/documents";
 import { announcements, recentActivity, type ActivityItem, type Announcement } from "../data/home";
+import { seedReferrals, type Referral } from "../data/referrals";
 import { paidInvoices, unpaidInvoices, type Invoice } from "../data/invoices";
 import { seedTickets, type Ticket, type TicketPriority } from "../data/tickets";
 import { fileToDataUrl } from "./files";
@@ -22,6 +23,8 @@ interface PortalState {
   agreement: Agreement;
   kyc: KycDocument[];
   sharedDocs: PortalDocument[];
+  /** Newest first. */
+  referrals: Referral[];
 }
 
 let state: PortalState = {
@@ -33,6 +36,7 @@ let state: PortalState = {
   agreement: seedAgreement,
   kyc: seedKyc,
   sharedDocs: sharedDocuments,
+  referrals: seedReferrals,
 };
 const listeners = new Set<() => void>();
 
@@ -159,6 +163,17 @@ export async function signAgreement(): Promise<void> {
 
 export function findDocument(s: PortalState, id: string): PortalDocument | undefined {
   return id === s.agreement.document.id ? s.agreement.document : s.sharedDocs.find((d) => d.id === id);
+}
+
+export class ReferralError extends Error {}
+
+/** Mock of POST /me/referrals { friend_name, friend_phone }. */
+export async function sendReferral(name: string, phoneE164: string): Promise<Referral> {
+  await delay(900);
+  if (state.referrals.some((r) => r.phone === phoneE164)) throw new ReferralError("You've already referred this number.");
+  const referral: Referral = { id: `r-${Date.now()}`, name, phone: phoneE164, status: "invited", createdAt: new Date().toISOString() };
+  set({ referrals: [referral, ...state.referrals] });
+  return referral;
 }
 
 /** Mock of POST /me/announcements/{id}/ack */

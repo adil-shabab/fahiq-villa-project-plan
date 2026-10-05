@@ -25,7 +25,9 @@ npm run lint
 | `/tickets/:id` | **Ticket detail**: Open → Assigned → In Progress → Resolved stage strip, details + photos, tenant-visible updates thread, comment composer with photo attach, "Rate this resolution" card (rating closes the ticket) |
 | `/documents` | **Documents** (docs/19 Page 5): My Agreement (Signed + View / Download, or Awaiting Signature + Sign Now), My KYC Documents (Verified / Pending / Rejected with reason and **Re-upload** sheet: take photo or pick from gallery, Submit for Review), Shared Documents (House Rules, Wi-Fi Details, Emergency Contacts, Society Guidelines) |
 | `/documents/:docId` | **Document viewer**: back, title, share, zoom in/out (pinch-zoom on touch), pinned Download |
-| `/account` | Minimal: signed-in number + log out |
+| `/account` | **Account** (docs/19 Page 6): profile card, menu (Announcements with unread badge, Refer a Friend, Help & Support via WhatsApp, Language, Log Out), app version. Edit Profile, Notification Preferences and Request to Move Out are shown as "Soon" (not built yet); Roommates & Mess is hidden because the sample unit isn't a PG bed |
+| `/account/announcements` | **Announcements** list: pinned first, 2-line previews, acknowledged check / pending dot; opens the announcement sheet |
+| `/account/refer` | **Refer a Friend**: reward hero, friend's name + phone form (validates number, blocks your own and duplicates), Your Referrals with Invited / Visited / Moved In / Reward Credited |
 
 Logged-in routes sit inside `PortalShell`, which redirects to `/login` without a session.
 

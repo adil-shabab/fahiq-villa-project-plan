@@ -11,6 +11,7 @@ export interface Announcement {
   body: string;
   requireAck: boolean;
   acknowledged: boolean;
+  pinned?: boolean;
 }
 
 export type ActivityKind = "payment" | "ticket" | "announcement" | "invoice";
@@ -44,6 +45,35 @@ export const announcements: Announcement[] = [
     body:
       "The overhead tanks will be cleaned this Saturday between 10:00 AM and 2:00 PM. Water supply to all flats will be paused during this window. Please store enough water for the morning. Drinking water from the RO unit in the lobby will remain available.",
     requireAck: true,
+    acknowledged: false,
+  },
+  {
+    id: "ann-29",
+    title: "Festive season gate timings",
+    propertyName: "Green View Residency",
+    publishedAt: daysAgo(9),
+    body:
+      "During Diwali week (20–26 Oct) the main gate will stay open until 1:00 AM. Please carry your access card after 11:30 PM and register any overnight guests with the front desk.",
+    requireAck: false,
+    acknowledged: false,
+    pinned: true,
+  },
+  {
+    id: "ann-27",
+    title: "Lift servicing in Tower A",
+    propertyName: "Green View Residency · Tower A",
+    publishedAt: daysAgo(16),
+    body: "Lift 2 in Tower A will be under annual maintenance on Tuesday from 11:00 AM to 4:00 PM. Lift 1 remains available.",
+    requireAck: true,
+    acknowledged: true,
+  },
+  {
+    id: "ann-22",
+    title: "New water purifier in the lobby",
+    propertyName: "All properties",
+    publishedAt: daysAgo(34),
+    body: "A new RO + UV purifier has been installed in the ground-floor lobby. Feel free to refill bottles any time.",
+    requireAck: false,
     acknowledged: false,
   },
 ];
