@@ -43,7 +43,9 @@ auto-reconcile → dashboards show occupancy and collections.
 | 13 | [Non-Functional Requirements](docs/13-non-functional-requirements.md) | Security, performance, compliance, DevOps |
 | 14 | [Roadmap](docs/14-roadmap.md) | Phased delivery plan (MVP → advanced) |
 | 15 | [Glossary](docs/15-glossary.md) | Domain terms |
+| 20 | [Backend Implementation Plan](docs/20-backend-implementation-plan.md) | Backend architecture, locked decisions (ADRs), UI↔spec gap analysis, sprint build order |
 
 ## Status
 
-Planning / documentation phase. No code yet — these docs define scope before implementation.
+Admin dashboard UI built on mock data (`frontend/apps/dashboard`). Backend not started —
+see [20 — Backend Implementation Plan](docs/20-backend-implementation-plan.md) for the build plan.
