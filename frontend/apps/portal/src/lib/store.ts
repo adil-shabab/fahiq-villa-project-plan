@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { seedAgreement, seedKyc, sharedDocuments, type Agreement, type KycDocument, type KycType, type PortalDocument } from "../data/documents";
 import { announcements, recentActivity, type ActivityItem, type Announcement } from "../data/home";
+import { seedNotificationPrefs, seedProfile, type NotificationPrefs, type Profile } from "../data/profile";
 import { seedReferrals, type Referral } from "../data/referrals";
 import { paidInvoices, unpaidInvoices, type Invoice } from "../data/invoices";
 import { seedTickets, type Ticket, type TicketPriority } from "../data/tickets";
@@ -25,6 +26,8 @@ interface PortalState {
   sharedDocs: PortalDocument[];
   /** Newest first. */
   referrals: Referral[];
+  profile: Profile;
+  notificationPrefs: NotificationPrefs;
 }
 
 let state: PortalState = {
@@ -37,6 +40,8 @@ let state: PortalState = {
   kyc: seedKyc,
   sharedDocs: sharedDocuments,
   referrals: seedReferrals,
+  profile: seedProfile,
+  notificationPrefs: seedNotificationPrefs,
 };
 const listeners = new Set<() => void>();
 
@@ -163,6 +168,18 @@ export async function signAgreement(): Promise<void> {
 
 export function findDocument(s: PortalState, id: string): PortalDocument | undefined {
   return id === s.agreement.document.id ? s.agreement.document : s.sharedDocs.find((d) => d.id === id);
+}
+
+/** Mock of PATCH /me/profile. Name/contact changes apply directly; KYC changes go via Documents. */
+export async function saveProfile(profile: Profile): Promise<void> {
+  await delay(800);
+  set({ profile });
+}
+
+/** Mock of PUT /me/notification-preferences. */
+export async function saveNotificationPrefs(prefs: NotificationPrefs): Promise<void> {
+  await delay(300);
+  set({ notificationPrefs: prefs });
 }
 
 export class ReferralError extends Error {}

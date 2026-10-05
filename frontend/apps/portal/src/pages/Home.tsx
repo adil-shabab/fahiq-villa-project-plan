@@ -15,7 +15,7 @@ import { useToday } from "../lib/today";
 type Sheet = { kind: "pay" } | { kind: "ticket" } | { kind: "announcement"; id: string } | null;
 
 export function Home() {
-  const { dues, announcements, activity } = usePortalState();
+  const { dues, announcements, activity, profile } = usePortalState();
   const [sheet, setSheet] = useState<Sheet>(null);
   const [toast, setToast] = useState<string | null>(null);
   const today = useToday();
@@ -28,7 +28,7 @@ export function Home() {
     <div className="flex flex-col gap-6">
       <header>
         <h1 className="text-2xl leading-8 font-bold tracking-tight text-ink">
-          {greeting()}, {tenantProfile.firstName}
+          {greeting()}, {profile.fullName.split(" ")[0]}
         </h1>
         <p className="mt-0.5 text-sm text-ink-muted">
           {tenantProfile.propertyName} · <span className="whitespace-nowrap">{tenantProfile.unitCode}</span>

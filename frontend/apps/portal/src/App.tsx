@@ -4,10 +4,12 @@ import { Account } from "./pages/Account";
 import { Announcements } from "./pages/Announcements";
 import { DocumentViewer } from "./pages/DocumentViewer";
 import { Documents } from "./pages/Documents";
+import { EditProfile } from "./pages/EditProfile";
 import { Home } from "./pages/Home";
 import { InvoiceDetail } from "./pages/InvoiceDetail";
 import { Invoices } from "./pages/Invoices";
 import { Login } from "./pages/Login";
+import { NotificationPreferences } from "./pages/NotificationPreferences";
 import { RaiseTicket } from "./pages/RaiseTicket";
 import { ReferFriend } from "./pages/ReferFriend";
 import { TicketDetail } from "./pages/TicketDetail";
@@ -29,6 +31,8 @@ function App() {
         <Route path="/documents" element={<Documents />} />
         <Route path="/documents/:docId" element={<DocumentViewer />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/account/profile" element={<EditProfile />} />
+        <Route path="/account/notifications" element={<NotificationPreferences />} />
         <Route path="/account/announcements" element={<Announcements />} />
         <Route path="/account/refer" element={<ReferFriend />} />
       </Route>

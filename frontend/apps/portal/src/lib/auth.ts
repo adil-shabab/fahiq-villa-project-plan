@@ -36,6 +36,12 @@ export async function verifyOtp(phoneE164: string, code: string): Promise<void> 
   }
 }
 
+/** Mock check for verifying a *new* number from Edit Profile (doesn't touch the session). */
+export async function verifyPhoneChange(_phoneE164: string, code: string): Promise<void> {
+  await delay(700);
+  if (code !== DEMO_OTP) throw new AuthError("That code doesn't match. Check the message and try again.");
+}
+
 export function getSessionPhone(): string | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);

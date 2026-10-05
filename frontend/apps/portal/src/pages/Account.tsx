@@ -2,7 +2,8 @@ import { Bell, ChevronRight, DoorOpen, Gift, Languages, LifeBuoy, LogOut, Megaph
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { tenantProfile } from "../data/home";
-import { getSessionPhone, logout } from "../lib/auth";
+import { logout } from "../lib/auth";
+import { formatMobile } from "../lib/phone";
 import { usePortalState } from "../lib/store";
 import { cn } from "../lib/utils";
 
@@ -28,18 +29,14 @@ function RowBody({ icon: Icon, label, trailing, tone = "default" }: { icon: Luci
 const soon = <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-xs font-semibold text-ink-faint">Soon</span>;
 const chevron = <ChevronRight className="h-5 w-5 shrink-0 text-ink-faint" />;
 
-function formatPhone(e164: string | null) {
-  if (!e164) return "";
-  const d = e164.replace(/^\+91/, "");
-  return `+91 ${d.slice(0, 5)} ${d.slice(5)}`;
-}
 
 export function Account() {
   const navigate = useNavigate();
-  const { announcements } = usePortalState();
+  const { announcements, profile } = usePortalState();
   const unread = announcements.filter((a) => a.requireAck && !a.acknowledged).length;
-  const initials = tenantProfile.fullName
+  const initials = profile.fullName
     .split(" ")
+    .filter(Boolean)
     .map((w) => w[0])
     .join("")
     .slice(0, 2);
@@ -50,12 +47,16 @@ export function Account() {
       <h1 className="text-2xl leading-8 font-bold tracking-tight text-ink">Account</h1>
 
       <section aria-label="Profile" className="flex items-center gap-4 rounded-2xl border border-rule bg-surface p-4">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent text-xl font-bold text-on-accent" aria-hidden>
-          {initials}
-        </span>
+        {profile.photo ? (
+          <img src={profile.photo} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover" />
+        ) : (
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent text-xl font-bold text-on-accent" aria-hidden>
+            {initials}
+          </span>
+        )}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-lg font-bold text-ink">{tenantProfile.fullName}</p>
-          <p className="text-sm text-ink-muted tabular-nums">{formatPhone(getSessionPhone())}</p>
+          <p className="truncate text-lg font-bold text-ink">{profile.fullName}</p>
+          <p className="text-sm text-ink-muted tabular-nums">+91 {formatMobile(profile.mobile)}</p>
           <p className="truncate text-sm text-ink-faint">
             {tenantProfile.propertyName} · <span className="whitespace-nowrap">{tenantProfile.unitCode}</span>
           </p>
@@ -65,11 +66,15 @@ export function Account() {
       <nav aria-label="Account">
         <ul className="divide-y divide-rule overflow-hidden rounded-2xl border border-rule bg-surface">
           {/* Rows marked "Soon" are docs/19 Page 6 sub-screens not built yet; they render inert instead of linking nowhere. */}
-          <li className={rowClass} aria-disabled="true">
-            <RowBody icon={UserRoundPen} label="Edit Profile" tone="muted" trailing={soon} />
+          <li>
+            <Link to="/account/profile" className={cn(rowClass, "hover:bg-surface-sunken focus-visible:bg-surface-sunken focus-visible:outline-none")}>
+              <RowBody icon={UserRoundPen} label="Edit Profile" trailing={chevron} />
+            </Link>
           </li>
-          <li className={rowClass} aria-disabled="true">
-            <RowBody icon={Bell} label="Notification Preferences" tone="muted" trailing={soon} />
+          <li>
+            <Link to="/account/notifications" className={cn(rowClass, "hover:bg-surface-sunken focus-visible:bg-surface-sunken focus-visible:outline-none")}>
+              <RowBody icon={Bell} label="Notification Preferences" trailing={chevron} />
+            </Link>
           </li>
           <li>
             <Link to="/account/announcements" className={cn(rowClass, "hover:bg-surface-sunken focus-visible:bg-surface-sunken focus-visible:outline-none")}>
