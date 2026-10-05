@@ -1,16 +1,7 @@
 /**
- * Mock data for the tenant Home screen. Replaced by GET /api/v1/me/tenancy, /me/dues,
+ * Mock data for the tenant Home screen (invoices live in ./invoices.ts). Replaced by GET /api/v1/me/tenancy, /me/dues,
  * /me/announcements and an activity feed once the backend exists (docs/06 §6.3, tenant portal).
  */
-
-export interface DueInvoice {
-  id: string;
-  number: string;
-  periodLabel: string;
-  dueDate: string; // ISO date
-  lines: { label: string; amount: number }[];
-  balance: number;
-}
 
 export interface Announcement {
   id: string;
@@ -37,33 +28,12 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString
 
 export const tenantProfile = {
   firstName: "Rahul",
+  fullName: "Rahul Verma",
   propertyName: "Green View Residency",
   unitCode: "A-101",
   nextDueDate: "2026-11-05",
   manager: { name: "Priya Sharma", phone: "+918049208800", whatsapp: "918049208800" },
 };
-
-export const dueInvoices: DueInvoice[] = [
-  {
-    id: "inv-0582",
-    number: "INV-2026-0582",
-    periodLabel: "October 2026",
-    dueDate: "2026-10-05",
-    lines: [
-      { label: "Rent", amount: 15000 },
-      { label: "Electricity (112 units)", amount: 930 },
-    ],
-    balance: 15930,
-  },
-  {
-    id: "inv-0517",
-    number: "INV-2026-0517",
-    periodLabel: "September 2026 · balance",
-    dueDate: "2026-09-05",
-    lines: [{ label: "Water (balance)", amount: 300 }],
-    balance: 300,
-  },
-];
 
 export const announcements: Announcement[] = [
   {

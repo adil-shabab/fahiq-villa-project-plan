@@ -18,7 +18,9 @@ npm run lint
 | `/login` | Login — +91 mobile number → Send OTP |
 | `/login/verify` | Verify OTP — 6 auto-advancing boxes (paste + SMS autofill), 30 s resend countdown |
 | `/` | **Home** (docs/19 Page 2): greeting, Amount Due card (paid-up state when nothing is due), quick actions, recent activity, manager help bar, bottom tab bar. Sheets: **Pay Now** (pick invoices, breakdown, total), **Announcement** (with "Got it" acknowledgement), **Raise a Ticket** (category chips, description, photos) |
-| `/invoices`, `/tickets`, `/documents` | Placeholders ("Coming soon") until docs/19 pages 3+ are built |
+| `/invoices` | **Invoices & Payments** (docs/19 Page 3) with a Dues / History / Statement switch (`?tab=history`, `?tab=statement`). Dues: total outstanding + Pay Now, invoice cards with Due Soon / Overdue pills, multi-select with a floating "Pay Selected". History: paid invoices grouped by payment month, year filter, receipt button. Statement: running ledger + **Download Statement** sheet (presets / custom range) |
+| `/invoices/:id` | **Invoice detail**: branded invoice card, line items, total, status; Pay Now if unpaid, Download Receipt + Share if paid. **Receipt** sheet with Download and Share via WhatsApp |
+| `/tickets`, `/documents` | Placeholders ("Coming soon") until docs/19 pages 4+ are built |
 | `/account` | Minimal: signed-in number + log out |
 
 Logged-in routes sit inside `PortalShell`, which redirects to `/login` without a session.
@@ -29,6 +31,12 @@ Home uses mock data from `src/data/home.ts` through a tiny shared store (`src/li
 the Home page, the sheets and the tab-bar badge stay in sync (paying clears the badge, a new
 ticket appears in Recent Activity). Swap the store's actions for the `/me/*` API
 (`/me/dues`, `/me/pay`, `/me/tickets`, `/me/announcements/{id}/ack`) once the backend exists.
+
+Paying from anywhere (Home, Dues, Invoice detail) moves the invoice into History with a
+receipt, and the Statement and balances update to match.
+
+**Mock downloads:** statements export as CSV and receipts as a `.txt` until the backend renders
+the PDFs (`GET /me/ledger/statement.pdf`, `GET /me/payments/{id}/receipt`).
 
 ## Auth
 

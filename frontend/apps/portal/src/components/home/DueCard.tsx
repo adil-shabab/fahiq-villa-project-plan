@@ -1,11 +1,11 @@
 import { CalendarClock, PartyPopper } from "lucide-react";
 import { formatINR, formatShortDate } from "../../lib/format";
 import { cn } from "../../lib/utils";
-import type { DueInvoice } from "../../data/home";
+import type { Invoice } from "../../data/invoices";
 import { PrimaryButton } from "../auth/PrimaryButton";
 
 interface Props {
-  dues: DueInvoice[];
+  dues: Invoice[];
   nextDueDate: string;
   /** Today's date (ISO yyyy-mm-dd), captured once by the page. */
   today: string;

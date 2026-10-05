@@ -1,6 +1,6 @@
 import { Building2, Check, CreditCard, Smartphone } from "lucide-react";
 import { useState } from "react";
-import type { DueInvoice } from "../../data/home";
+import type { Invoice } from "../../data/invoices";
 import { formatINR, formatShortDate } from "../../lib/format";
 import { payInvoices } from "../../lib/store";
 import { cn } from "../../lib/utils";
@@ -10,13 +10,15 @@ import { BottomSheet } from "../ui/BottomSheet";
 interface Props {
   open: boolean;
   onClose: () => void;
-  dues: DueInvoice[];
+  dues: Invoice[];
+  /** Invoice ids to pre-select; defaults to all unpaid invoices. */
+  initialSelected?: string[];
   onPaid: (amount: number) => void;
 }
 
-export function PaySheet({ open, onClose, dues, onPaid }: Props) {
-  // Mounted fresh each time it opens (see Home), so all unpaid invoices start selected.
-  const [selected, setSelected] = useState<Set<string>>(() => new Set(dues.map((d) => d.id)));
+export function PaySheet({ open, onClose, dues, initialSelected, onPaid }: Props) {
+  // Mounted fresh each time it opens, so the selection resets on every open.
+  const [selected, setSelected] = useState<Set<string>>(() => new Set(initialSelected ?? dues.map((d) => d.id)));
   const [paying, setPaying] = useState(false);
 
   const chosen = dues.filter((d) => selected.has(d.id));

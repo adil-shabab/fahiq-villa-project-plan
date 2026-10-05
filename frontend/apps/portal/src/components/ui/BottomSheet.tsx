@@ -20,6 +20,9 @@ export function BottomSheet({ open, onClose, title, children, footer }: Props) {
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
+    // The sheet is portalled to <body>; make the app behind it inert for keyboard and screen readers.
+    const root = document.getElementById("root");
+    root?.setAttribute("inert", "");
     panelRef.current?.focus();
 
     function onKeyDown(e: KeyboardEvent) {
@@ -46,6 +49,7 @@ export function BottomSheet({ open, onClose, title, children, footer }: Props) {
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = overflow;
+      root?.removeAttribute("inert");
       previouslyFocused?.focus();
     };
   }, [open, onClose]);

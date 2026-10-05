@@ -1,17 +1,26 @@
 import { useSyncExternalStore } from "react";
-import { announcements, dueInvoices, recentActivity, type ActivityItem, type Announcement, type DueInvoice } from "../data/home";
+import { announcements, recentActivity, type ActivityItem, type Announcement } from "../data/home";
+import { paidInvoices, unpaidInvoices, type Invoice } from "../data/invoices";
 
 /**
- * Tiny in-memory store so Home, the sheets and the tab-bar badge share one state.
+ * Tiny in-memory store so Home, Invoices, the sheets and the tab-bar badge share one state.
  * Stands in for TanStack Query + the /me/* API until the backend exists.
  */
 interface PortalState {
-  dues: DueInvoice[];
+  /** Unpaid invoices, oldest due first. */
+  dues: Invoice[];
+  /** Paid invoices, newest payment first. */
+  history: Invoice[];
   announcements: Announcement[];
   activity: ActivityItem[];
 }
 
-let state: PortalState = { dues: dueInvoices, announcements, activity: recentActivity };
+let state: PortalState = {
+  dues: [...unpaidInvoices].sort((a, b) => a.dueDate.localeCompare(b.dueDate)),
+  history: paidInvoices,
+  announcements,
+  activity: recentActivity,
+};
 const listeners = new Set<() => void>();
 
 function set(next: Partial<PortalState>) {
@@ -29,7 +38,12 @@ export function usePortalState(): PortalState {
   );
 }
 
+export function findInvoice(s: PortalState, id: string): Invoice | undefined {
+  return s.dues.find((i) => i.id === id) ?? s.history.find((i) => i.id === id);
+}
+
 let ticketSeq = 212;
+let receiptSeq = 392;
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -38,11 +52,25 @@ function delay(ms: number) {
 /** Mock of POST /me/pay → Razorpay Checkout → webhook. Resolves as if the payment succeeded. */
 export async function payInvoices(ids: string[]): Promise<number> {
   await delay(1200);
-  const paid = state.dues.filter((d) => ids.includes(d.id));
-  const total = paid.reduce((s, d) => s + d.balance, 0);
+  const paidAt = new Date().toISOString();
+  const paid = state.dues
+    .filter((d) => ids.includes(d.id))
+    .map<Invoice>((d) => ({
+      ...d,
+      balance: 0,
+      payment: {
+        receiptNo: `RCPT-2026-0${receiptSeq++}`,
+        method: "UPI",
+        reference: `pay_${Math.random().toString(36).slice(2, 11)}`,
+        amount: d.balance,
+        paidAt,
+      },
+    }));
+  const total = paid.reduce((s, d) => s + d.payment!.amount, 0);
   set({
     dues: state.dues.filter((d) => !ids.includes(d.id)),
-    activity: [{ id: `pay-${Date.now()}`, kind: "payment", text: "Payment received", amount: total, at: new Date().toISOString() }, ...state.activity],
+    history: [...paid, ...state.history],
+    activity: [{ id: `pay-${Date.now()}`, kind: "payment", text: "Payment received", amount: total, at: paidAt }, ...state.activity],
   });
   return total;
 }
