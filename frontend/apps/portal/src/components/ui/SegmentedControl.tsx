@@ -5,20 +5,23 @@ interface Props<T extends string> {
   options: { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
+  /** "tabs" switches views (tablist); "radio" picks a form value (radiogroup). */
+  kind?: "tabs" | "radio";
 }
 
-/** iOS-style segmented control, exposed as a tablist so screen readers announce the active view. */
-export function SegmentedControl<T extends string>({ label, options, value, onChange }: Props<T>) {
+/** iOS-style segmented control: a tablist for switching views, or a radiogroup inside forms. */
+export function SegmentedControl<T extends string>({ label, options, value, onChange, kind = "tabs" }: Props<T>) {
   return (
-    <div role="tablist" aria-label={label} className="grid rounded-xl bg-surface-sunken p-1" style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
+    <div role={kind === "tabs" ? "tablist" : "radiogroup"} aria-label={label} className="grid rounded-xl bg-surface-sunken p-1" style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
       {options.map((o) => {
         const active = o.value === value;
         return (
           <button
             key={o.value}
             type="button"
-            role="tab"
-            aria-selected={active}
+            role={kind === "tabs" ? "tab" : "radio"}
+            aria-selected={kind === "tabs" ? active : undefined}
+            aria-checked={kind === "radio" ? active : undefined}
             onClick={() => onChange(o.value)}
             className={cn(
               "h-10 rounded-lg text-sm font-semibold transition focus-visible:ring-4 focus-visible:ring-accent/20 focus-visible:outline-none",

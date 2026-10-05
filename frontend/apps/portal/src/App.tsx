@@ -6,6 +6,9 @@ import { Home } from "./pages/Home";
 import { InvoiceDetail } from "./pages/InvoiceDetail";
 import { Invoices } from "./pages/Invoices";
 import { Login } from "./pages/Login";
+import { RaiseTicket } from "./pages/RaiseTicket";
+import { TicketDetail } from "./pages/TicketDetail";
+import { Tickets } from "./pages/Tickets";
 import { VerifyOtp } from "./pages/VerifyOtp";
 
 function App() {
@@ -17,7 +20,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/invoices/:id" element={<InvoiceDetail />} />
-        <Route path="/tickets" element={<ComingSoon title="My Tickets" />} />
+        <Route path="/tickets" element={<Tickets />} />
+        <Route path="/tickets/new" element={<RaiseTicket />} />
+        <Route path="/tickets/:id" element={<TicketDetail />} />
         <Route path="/documents" element={<ComingSoon title="Documents" />} />
         <Route path="/account" element={<Account />} />
       </Route>

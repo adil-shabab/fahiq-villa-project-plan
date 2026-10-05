@@ -1,41 +1,30 @@
-import { Bug, Camera, CircleAlert, CircleCheck, Droplets, Ellipsis, Plug, Refrigerator, Wifi, X, type LucideIcon } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { CircleAlert, CircleCheck } from "lucide-react";
+import { useId, useState } from "react";
+import { Link } from "react-router-dom";
+import type { Ticket } from "../../data/tickets";
 import { raiseTicket } from "../../lib/store";
+import { quickCategories, ticketCategories, type TicketCategory } from "../../lib/ticketCategories";
 import { cn } from "../../lib/utils";
 import { PrimaryButton } from "../auth/PrimaryButton";
+import { PhotoPicker, type PickedPhoto } from "../tickets/PhotoPicker";
 import { BottomSheet } from "../ui/BottomSheet";
 
-const categories: { id: string; label: string; icon: LucideIcon }[] = [
-  { id: "plumbing", label: "Plumbing", icon: Droplets },
-  { id: "electrical", label: "Electrical", icon: Plug },
-  { id: "appliance", label: "Appliance", icon: Refrigerator },
-  { id: "pest_control", label: "Pest Control", icon: Bug },
-  { id: "internet", label: "Internet", icon: Wifi },
-  { id: "other", label: "Other", icon: Ellipsis },
-];
-
-const MAX_PHOTOS = 4;
+const categories = ticketCategories.filter((c) => quickCategories.includes(c.id));
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
+/** Quick raise from Home (docs/19 Page 2). The full form lives at /tickets/new. */
 export function RaiseTicketSheet({ open, onClose }: Props) {
   const descId = useId();
-  const [category, setCategory] = useState<string | null>(null);
+  const [category, setCategory] = useState<TicketCategory | null>(null);
   const [description, setDescription] = useState("");
-  const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [created, setCreated] = useState<string | null>(null);
-
-  // Release preview object URLs when the sheet unmounts (removed photos are released immediately).
-  const photosRef = useRef(photos);
-  useEffect(() => {
-    photosRef.current = photos;
-  }, [photos]);
-  useEffect(() => () => photosRef.current.forEach((p) => URL.revokeObjectURL(p.url)), []);
+  const [created, setCreated] = useState<Ticket | null>(null);
 
   const canSubmit = category !== null && description.trim().length >= 5;
 
@@ -44,8 +33,10 @@ export function RaiseTicketSheet({ open, onClose }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      const label = categories.find((c) => c.id === category)!.label;
-      setCreated(await raiseTicket(label, description.trim(), photos.map((p) => p.file)));
+      const text = description.trim();
+      // The quick sheet has no title field; use the first line of the description.
+      const title = text.split("\n")[0].slice(0, 60);
+      setCreated(await raiseTicket({ category, title, description: text, priority: "normal", photos: photos.map((p) => p.file) }));
     } catch {
       setError("We couldn't submit your ticket. Please try again.");
     } finally {
@@ -60,8 +51,11 @@ export function RaiseTicketSheet({ open, onClose }: Props) {
           <span className="flex h-16 w-16 items-center justify-center rounded-full bg-ok/12 text-ok">
             <CircleCheck className="h-8 w-8" />
           </span>
-          <p className="mt-4 text-xl font-bold text-ink">Ticket #{created} raised</p>
+          <p className="mt-4 text-xl font-bold text-ink">Ticket #{created.number} raised</p>
           <p className="mt-1 text-sm text-ink-muted">Your property manager has been notified. You'll get updates on WhatsApp.</p>
+          <Link to={`/tickets/${created.id}`} className="mt-3 text-sm font-semibold text-accent underline-offset-4 hover:underline">
+            View ticket
+          </Link>
         </div>
       </BottomSheet>
     );
@@ -116,43 +110,9 @@ export function RaiseTicketSheet({ open, onClose }: Props) {
 
       <div className="mt-5">
         <p className="mb-2 text-sm font-semibold text-ink">
-          Photos <span className="font-normal text-ink-faint">(optional, up to {MAX_PHOTOS})</span>
+          Photos <span className="font-normal text-ink-faint">(optional, up to 4)</span>
         </p>
-        <div className="flex flex-wrap gap-2">
-          {photos.map((p, i) => (
-            <div key={p.url} className="relative h-18 w-18 overflow-hidden rounded-xl border border-rule">
-              <img src={p.url} alt={`Attached photo ${i + 1}`} className="h-full w-full object-cover" />
-              <button
-                type="button"
-                onClick={() => {
-                  URL.revokeObjectURL(p.url);
-                  setPhotos((prev) => prev.filter((x) => x.url !== p.url));
-                }}
-                aria-label={`Remove photo ${i + 1}`}
-                className="absolute top-1 right-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-          {photos.length < MAX_PHOTOS && (
-            <label className="flex h-18 w-18 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-rule-strong text-xs font-semibold text-ink-muted transition hover:border-accent hover:text-accent has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-accent/20">
-              <Camera className="h-5 w-5" />
-              Add
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="sr-only"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files ?? []).slice(0, MAX_PHOTOS - photos.length);
-                  setPhotos((prev) => [...prev, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))]);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-          )}
-        </div>
+        <PhotoPicker photos={photos} onChange={setPhotos} />
       </div>
 
       {error && (

@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from "react";
 import { announcements, recentActivity, type ActivityItem, type Announcement } from "../data/home";
 import { paidInvoices, unpaidInvoices, type Invoice } from "../data/invoices";
+import { seedTickets, type Ticket, type TicketPriority } from "../data/tickets";
+import { fileToDataUrl } from "./files";
+import { categoryMeta, type TicketCategory } from "./ticketCategories";
 
 /**
  * Tiny in-memory store so Home, Invoices, the sheets and the tab-bar badge share one state.
@@ -13,6 +16,8 @@ interface PortalState {
   history: Invoice[];
   announcements: Announcement[];
   activity: ActivityItem[];
+  /** Newest first. */
+  tickets: Ticket[];
 }
 
 let state: PortalState = {
@@ -20,6 +25,7 @@ let state: PortalState = {
   history: paidInvoices,
   announcements,
   activity: recentActivity,
+  tickets: seedTickets,
 };
 const listeners = new Set<() => void>();
 
@@ -75,14 +81,60 @@ export async function payInvoices(ids: string[]): Promise<number> {
   return total;
 }
 
-/** Mock of POST /me/tickets. Returns the new ticket number. */
-export async function raiseTicket(category: string, _description: string, _photos: File[]): Promise<string> {
+export interface NewTicket {
+  category: TicketCategory;
+  title: string;
+  description: string;
+  priority: TicketPriority;
+  photos: File[];
+}
+
+/** Mock of POST /me/tickets. Returns the created ticket. */
+export async function raiseTicket(input: NewTicket): Promise<Ticket> {
+  const photos = await Promise.all(input.photos.map(fileToDataUrl));
   await delay(900);
   const number = `T-${ticketSeq++}`;
+  const now = new Date().toISOString();
+  const slaHours = input.priority === "urgent" ? 4 : 48;
+  const ticket: Ticket = {
+    id: number.toLowerCase(),
+    number,
+    title: input.title,
+    category: input.category,
+    description: input.description,
+    priority: input.priority,
+    status: "open",
+    unitCode: "A-101",
+    raisedAt: now,
+    expectedBy: new Date(Date.now() + slaHours * 3_600_000).toISOString(),
+    photos,
+    updates: [{ id: "u1", kind: "created", by: "tenant", text: "Ticket raised", at: now }],
+  };
   set({
-    activity: [{ id: `tk-${number}`, kind: "ticket", text: `Ticket #${number} raised · ${category}`, at: new Date().toISOString() }, ...state.activity],
+    tickets: [ticket, ...state.tickets],
+    activity: [{ id: `tk-${number}`, kind: "ticket", text: `Ticket #${number} raised · ${categoryMeta(input.category).label}`, at: now }, ...state.activity],
   });
-  return number;
+  return ticket;
+}
+
+function updateTicket(id: string, fn: (t: Ticket) => Ticket) {
+  set({ tickets: state.tickets.map((t) => (t.id === id ? fn(t) : t)) });
+}
+
+/** Mock of POST /me/tickets/{id}/comments */
+export async function addTicketComment(id: string, text: string, files: File[]): Promise<void> {
+  const photos = await Promise.all(files.map(fileToDataUrl));
+  await delay(500);
+  updateTicket(id, (t) => ({
+    ...t,
+    updates: [...t.updates, { id: `c-${Date.now()}`, kind: "comment", by: "tenant", text, at: new Date().toISOString(), photos }],
+  }));
+}
+
+/** Mock of POST /me/tickets/{id}/rate — rating a resolved ticket closes it. */
+export async function rateTicket(id: string, stars: number, comment: string): Promise<void> {
+  await delay(500);
+  updateTicket(id, (t) => ({ ...t, status: "closed", rating: { stars, comment } }));
 }
 
 /** Mock of POST /me/announcements/{id}/ack */
